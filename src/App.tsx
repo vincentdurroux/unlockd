@@ -3451,23 +3451,37 @@ function SplashScreen() {
 
           {/* Center Name - Appears as the circle splits */}
           <div className="absolute flex items-center justify-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.5, delay: 1.5 }}
-              className="flex items-center"
-            >
-              <span className="text-5xl md:text-6xl font-medium tracking-tight text-[#0A1629] font-display">
-                unlock
-              </span>
+            <div className="flex items-center">
+              {"unlock".split("").map((char, i) => {
+                // Animation from the center (icon is between k and d)
+                // "unlock" indices are 0 to 5. Star is after 5.
+                // Delay based on distance from the right side of "unlock"
+                const delay = 0.8 + ((5 - i) * 0.15);
+                return (
+                  <motion.span
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.5, x: 20 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    transition={{ 
+                      duration: 0.6, 
+                      delay: delay,
+                      ease: [0.34, 1.56, 0.64, 1]
+                    }}
+                    className="text-5xl md:text-6xl font-medium tracking-tight text-[#0A1629] font-display inline-block"
+                  >
+                    {char}
+                  </motion.span>
+                );
+              })}
+              
               <motion.div
                 initial={{ rotate: -180, scale: 0, opacity: 0 }}
                 animate={{ rotate: 0, scale: 1, opacity: 1 }}
                 transition={{ 
                   type: "spring",
-                  stiffness: 120,
-                  damping: 18,
-                  delay: 2.2 
+                  stiffness: 150,
+                  damping: 15,
+                  delay: 0.7 
                 }}
                 className="mx-1.5 md:mx-3"
               >
@@ -3475,10 +3489,20 @@ function SplashScreen() {
                   <path d="M10 0L12.5 7.5L20 10L12.5 12.5L10 20L7.5 12.5L0 10L7.5 7.5L10 0Z" fill="#FBB03B" />
                 </svg>
               </motion.div>
-              <span className="text-5xl md:text-6xl font-medium tracking-tight text-[#0A1629] font-display">
+
+              <motion.span
+                initial={{ opacity: 0, scale: 0.5, x: -20 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                transition={{ 
+                  duration: 0.6, 
+                  delay: 0.95,
+                  ease: [0.34, 1.56, 0.64, 1]
+                }}
+                className="text-5xl md:text-6xl font-medium tracking-tight text-[#0A1629] font-display inline-block"
+              >
                 d
-              </span>
-            </motion.div>
+              </motion.span>
+            </div>
           </div>
 
           {/* Right Yellow Arc */}

@@ -896,8 +896,16 @@ export default function App() {
         <motion.div
           className="min-h-full w-full"
           onPanEnd={(e, info) => {
-            const threshold = 50;
-            const velocity = 200;
+            const threshold = 70;
+            const velocity = 300;
+            
+            // Fix: ignore if vertical movement is dominant (scrolling)
+            if (Math.abs(info.offset.y) > Math.abs(info.offset.x)) return;
+
+            // Fix: ignore if we are over an element that handles its own horizontal swipe/drag
+            const target = e.target as HTMLElement;
+            if (target && target.closest('.no-swipe')) return;
+
             if (info.offset.x < -threshold || info.velocity.x < -velocity) {
               handleSwipe('left');
             } else if (info.offset.x > threshold || info.velocity.x > velocity) {
@@ -1573,7 +1581,7 @@ function AdDetailModal({ ad, onClose }: { ad: Ad | any, onClose: () => void }) {
 
           <div>
             <div 
-              className="h-56 sm:h-80 overflow-hidden relative group cursor-zoom-in touch-pan-y"
+              className="h-56 sm:h-80 overflow-hidden relative group cursor-zoom-in touch-pan-y no-swipe"
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
             >
@@ -1731,7 +1739,7 @@ function AdDetailModal({ ad, onClose }: { ad: Ad | any, onClose: () => void }) {
                 <X className="w-6 h-6" />
               </button>
 
-              <div className="relative w-full h-full flex items-center justify-center p-4">
+              <div className="relative w-full h-full flex items-center justify-center p-4 no-swipe">
                 <motion.img
                   key={currentImageIndex}
                   initial={{ scale: 0.9, opacity: 0, x: direction * 200 }}
@@ -1804,8 +1812,8 @@ function HomeView({ onNavigate, onAddPro, ads, onSelectAd, onSelectPost }: { onN
         
         <div className="relative z-10 grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6 md:space-y-8 flex flex-col items-center md:items-start text-center md:text-left">
-            <h1 className="text-4xl md:text-6xl font-bold font-display leading-[1.1] tracking-tight max-w-lg">
-              Find the best <span className="text-brand-blue italic pr-3">Pros</span> in town.
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-display leading-[1.15] tracking-tight max-w-2xl">
+              Find recommended <span className="text-brand-blue italic">Pros</span> near you.
             </h1>
             <p className="text-slate-500 text-base md:text-xl max-w-md leading-relaxed">
               Connect with verified experts recommended by the community.
@@ -1895,10 +1903,22 @@ function HighlightCarousel({ onNavigate }: { onNavigate: (view: View) => void })
   ];
 
   return (
-    <div className="relative overflow-hidden rounded-[32px]">
-      <div 
-        className="flex transition-transform duration-700 ease-in-out" 
-        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+    <div className="relative overflow-hidden rounded-[32px] no-swipe">
+      <motion.div 
+        className="flex"
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.2}
+        onDragEnd={(e, info) => {
+          const threshold = 50;
+          if (info.offset.x < -threshold && currentIndex < totalSlides - 1) {
+            setCurrentIndex(prev => prev + 1);
+          } else if (info.offset.x > threshold && currentIndex > 0) {
+            setCurrentIndex(prev => prev - 1);
+          }
+        }}
+        animate={{ x: `-${currentIndex * 100}%` }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
         {slides.map((slide, idx) => (
           <div key={idx} className="min-w-full px-1">
@@ -1971,7 +1991,7 @@ function HighlightCarousel({ onNavigate }: { onNavigate: (view: View) => void })
             )}
           </div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Navigation Arrows */}
       <button 
@@ -2052,7 +2072,7 @@ function ExploreView({ onNavigate }: { onNavigate: (view: View) => void }) {
             <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
               <Filter className="w-3 h-3" /> Categories
             </div>
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 no-swipe">
               {categories.map(cat => (
                 <button
                   key={cat}
@@ -2074,7 +2094,7 @@ function ExploreView({ onNavigate }: { onNavigate: (view: View) => void }) {
             <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
               <Languages className="w-3 h-3" /> Languages
             </div>
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 no-swipe">
               {languages.map(lang => (
                 <button
                   key={lang}
@@ -3436,7 +3456,7 @@ function SplashScreen() {
           {/* Left Blue Arc */}
           <motion.div
             initial={{ x: 25, opacity: 0 }}
-            animate={{ x: -110, opacity: 1 }}
+            animate={{ x: -140, opacity: 1 }}
             transition={{ 
               duration: 2.5, 
               delay: 0.2,
@@ -3453,19 +3473,25 @@ function SplashScreen() {
           <div className="absolute flex items-center justify-center">
             <div className="flex items-center">
               {"unlock".split("").map((char, i) => {
-                // Animation from the center (icon is between k and d)
-                // "unlock" indices are 0 to 5. Star is after 5.
-                // Delay based on distance from the right side of "unlock"
-                const delay = 0.8 + ((5 - i) * 0.15);
+                // Grouping: 'lock' (indices 2-5) first, then 'un' (0-1)
+                let delay;
+                if (i >= 2) {
+                  // "lock" letters appear first with a synchronized reveal
+                  delay = 0.5 + ((i - 2) * 0.12);
+                } else {
+                  // "un" follows shortly after "lock" starts appearing
+                  delay = 1.4 + (i * 0.15);
+                }
+                
                 return (
                   <motion.span
                     key={i}
-                    initial={{ opacity: 0, scale: 0.5, x: 20 }}
-                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    initial={{ opacity: 0, filter: "blur(8px)" }}
+                    animate={{ opacity: 1, filter: "blur(0px)" }}
                     transition={{ 
-                      duration: 0.6, 
+                      duration: 1.4, // Keep it smooth
                       delay: delay,
-                      ease: [0.34, 1.56, 0.64, 1]
+                      ease: [0.4, 0, 0.2, 1]
                     }}
                     className="text-5xl md:text-6xl font-medium tracking-tight text-[#0A1629] font-display inline-block"
                   >
@@ -3479,9 +3505,9 @@ function SplashScreen() {
                 animate={{ rotate: 0, scale: 1, opacity: 1 }}
                 transition={{ 
                   type: "spring",
-                  stiffness: 150,
+                  stiffness: 120,
                   damping: 15,
-                  delay: 0.7 
+                  delay: 1.1 // Show icon as "lock" becomes clear
                 }}
                 className="mx-1.5 md:mx-3"
               >
@@ -3491,12 +3517,12 @@ function SplashScreen() {
               </motion.div>
 
               <motion.span
-                initial={{ opacity: 0, scale: 0.5, x: -20 }}
-                animate={{ opacity: 1, scale: 1, x: 0 }}
+                initial={{ opacity: 0, filter: "blur(8px)" }}
+                animate={{ opacity: 1, filter: "blur(0px)" }}
                 transition={{ 
-                  duration: 0.6, 
-                  delay: 0.95,
-                  ease: [0.34, 1.56, 0.64, 1]
+                  duration: 1.4, 
+                  delay: 2.2, // "d" is the grand finale
+                  ease: [0.4, 0, 0.2, 1]
                 }}
                 className="text-5xl md:text-6xl font-medium tracking-tight text-[#0A1629] font-display inline-block"
               >
@@ -3508,7 +3534,7 @@ function SplashScreen() {
           {/* Right Yellow Arc */}
           <motion.div
             initial={{ x: -25, opacity: 0 }}
-            animate={{ x: 110, opacity: 1 }}
+            animate={{ x: 140, opacity: 1 }}
             transition={{ 
               duration: 2.5, 
               delay: 0.2,

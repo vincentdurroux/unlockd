@@ -1,0 +1,5 @@
+{
+  "name": "Unlock'd",
+  "description": "A community-based platform for newcomers in Valencia to find trusted local professionals and share experiences.",
+  "requestFramePermissions": ["geolocation"]
+}

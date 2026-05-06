@@ -895,23 +895,6 @@ export default function App() {
       <main className="flex-1 overflow-y-auto no-scrollbar relative pb-24">
         <motion.div
           className="min-h-full w-full"
-          onPanEnd={(e, info) => {
-            const threshold = 70;
-            const velocity = 300;
-            
-            // Fix: ignore if vertical movement is dominant (scrolling)
-            if (Math.abs(info.offset.y) > Math.abs(info.offset.x)) return;
-
-            // Fix: ignore if we are over an element that handles its own horizontal swipe/drag
-            const target = e.target as HTMLElement;
-            if (target && target.closest('.no-swipe')) return;
-
-            if (info.offset.x < -threshold || info.velocity.x < -velocity) {
-              handleSwipe('left');
-            } else if (info.offset.x > threshold || info.velocity.x > velocity) {
-              handleSwipe('right');
-            }
-          }}
         >
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div

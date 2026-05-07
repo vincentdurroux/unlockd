@@ -4,9 +4,11 @@
 @theme {
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --color-brand-blue: #00AEEF;
-  --color-brand-yellow: #FBB03B;
-  --color-brand-navy: #0A1629;
+  --color-brand-blue: #1677FF;
+  --color-brand-yellow: #FFB400;
+  --color-brand-navy: #0A0F2C;
+  --color-slate-900: #0A0F2C;
+  --color-black: #0A0F2C;
   --bg-brand-gradient: linear-gradient(to right, var(--color-brand-blue), var(--color-brand-yellow));
 }
 
@@ -33,14 +35,14 @@
 }
 
 :root {
-  --color-primary: #00AEEF;
+  --color-primary: #1677FF;
   --color-bg: #ffffff;
 }
 
 html,
 body {
   background-color: var(--color-bg);
-  color: #1e293b;
+  color: var(--color-brand-navy);
   font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
   height: 100%;

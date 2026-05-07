@@ -3825,7 +3825,7 @@ function SplashScreen() {
           className="flex flex-col items-center"
         >
           <p className="text-xs md:text-sm font-medium text-slate-500 whitespace-nowrap px-4 text-center">
-            Your circle. Your people. <span className="text-[#00AEEF]">Your recommendations.</span>
+            Your circle. Your people. <span className="text-brand-blue">Your recommendations.</span>
           </p>
           
           {/* Loading Progress Bar */}

@@ -18,7 +18,7 @@ export function Logo({ className, showTagline = false }: LogoProps) {
 
       {showTagline && (
         <p className="text-[11px] md:text-[14px] font-bold text-slate-400 mt-2 tracking-wide uppercase">
-          Unlock your <span className="text-[#00AEEF]">new city</span> together.
+          Unlock your <span className="text-brand-blue">new city</span> together.
         </p>
       )}
     </div>

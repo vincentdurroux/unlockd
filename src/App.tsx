@@ -33,6 +33,7 @@ import {
   ShoppingBag,
   Tag,
   Camera,
+  RotateCcw,
   Loader2,
   X,
   Mail,
@@ -119,6 +120,7 @@ interface Professional {
   email?: string;
   experience?: string;
   location?: string;
+  coordinates?: { lat: number; lng: number };
 }
 
 interface Event {
@@ -166,6 +168,7 @@ const MOCK_PROS: Professional[] = [
     email: 'carlos.plumbing@example.com',
     experience: '15 years',
     location: 'Ruzafa, Valencia',
+    coordinates: { lat: 39.4614, lng: -0.3756 },
     services: [
       { name: 'Emergency Leak Repair', price: 60, description: 'Fast response for urgent leaks.' },
       { name: 'Installation', price: 120, description: 'New faucet or toilet installation.' }
@@ -189,6 +192,7 @@ const MOCK_PROS: Professional[] = [
     email: 'elena.law@example.com',
     experience: '8 years',
     location: 'Ciutat Vella, Valencia',
+    coordinates: { lat: 39.4746, lng: -0.3768 },
     services: [
       { name: 'NIE Application', price: 150, description: 'Full assistance with NIE paperwork.' },
       { name: 'Rental Contract Review', price: 80, description: 'Legal review of your lease.' }
@@ -211,6 +215,7 @@ const MOCK_PROS: Professional[] = [
     email: 'david.trans@example.com',
     experience: '10 years',
     location: 'Benimaclet, Valencia',
+    coordinates: { lat: 39.4824, lng: -0.3544 },
     services: [
       { name: 'Official Translation', price: 40, description: 'Per page official document translation.' }
     ],
@@ -232,6 +237,7 @@ const MOCK_PROS: Professional[] = [
     email: 'sophie.realty@example.com',
     experience: '6 years',
     location: 'El Carmen, Valencia',
+    coordinates: { lat: 39.4776, lng: -0.3792 },
     services: [
       { name: 'Apartment Hunting', price: 200, description: 'Personalized search for your next home.' },
       { name: 'Relocation Package', price: 500, description: 'Full support for moving to Valencia.' }
@@ -250,6 +256,8 @@ const MOCK_PROS: Professional[] = [
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200&h=200',
     verified: true,
     bio: 'Professional handyman with a passion for fixing things. I can help with anything from furniture assembly to general home maintenance. Reliable, efficient, and always with a smile.',
+    location: 'Algiros, Valencia',
+    coordinates: { lat: 39.4754, lng: -0.3478 },
     services: [
       { name: 'Furniture Assembly', price: 50, description: 'Quick assembly of IKEA or other furniture.' },
       { name: 'General Maintenance', price: 40, description: 'Fixing small things around the house.' }
@@ -261,19 +269,61 @@ const MOCK_PROS: Professional[] = [
   {
     id: '6',
     name: 'Anna Schmidt',
-    category: 'Lawyer',
+    category: 'Accountant',
     rating: 4.9,
     reviews: 34,
     languages: ['German', 'English', 'Spanish'],
     image: 'https://images.unsplash.com/photo-1567532939604-b6b5b0ad2f01?auto=format&fit=crop&q=80&w=200&h=200',
     verified: true,
     bio: 'Tax consultant with extensive knowledge of the Spanish legal system. I specialize in helping digital nomads and expats optimize their taxes and set up their businesses in Valencia.',
+    location: 'Arrancon, Valencia',
+    coordinates: { lat: 39.4674, lng: -0.3664 },
     services: [
       { name: 'Tax Advice', price: 120, description: 'Expert advice for expats and digital nomads.' },
       { name: 'Business Setup', price: 300, description: 'Help with starting your company in Spain.' }
     ],
     testimonials: [
       { author: 'Emma', avatar: 'https://i.pravatar.cc/150?u=emma', text: 'Anna explained the Spanish tax system so clearly. A life-saver!', rating: 5, date: '1 week ago' }
+    ]
+  },
+  {
+    id: '7',
+    name: 'Dr. Sarah Taylor',
+    category: 'Dentist',
+    rating: 4.9,
+    reviews: 65,
+    languages: ['English', 'Spanish'],
+    image: 'https://images.unsplash.com/photo-1559839734-2b71f1e59816?auto=format&fit=crop&q=80&w=200&h=200',
+    verified: true,
+    bio: 'International dentist specializing in cosmetic dentistry and preventive care. Providing high-quality care in a modern, expat-friendly environment.',
+    location: 'Gran Via, Valencia',
+    coordinates: { lat: 39.4684, lng: -0.3644 },
+    services: [
+      { name: 'Teeth Cleaning', price: 60, description: 'Professional cleaning and checkup.' },
+      { name: 'Emergency Appointment', price: 80, description: 'Same-day urgent dental care.' }
+    ],
+    testimonials: [
+      { author: 'Chris', avatar: 'https://i.pravatar.cc/150?u=12', text: 'Best dental experience in years. Very clean and professional.', rating: 5, date: '3 weeks ago' }
+    ]
+  },
+  {
+    id: '8',
+    name: 'Lucas Dupont',
+    category: 'Electrician',
+    rating: 4.8,
+    reviews: 47,
+    languages: ['French', 'Spanish', 'English'],
+    image: 'https://images.unsplash.com/photo-1590650046871-92c887180603?auto=format&fit=crop&q=80&w=200&h=200',
+    verified: true,
+    bio: 'Certified electrician for all your home power needs. From fixing sockets to complete rewiring projects and smart home installations.',
+    location: 'Cabanyal, Valencia',
+    coordinates: { lat: 39.4682, lng: -0.3238 },
+    services: [
+      { name: 'Socket Repair', price: 40, description: 'Fixing faulty electrical outlets.' },
+      { name: 'Electrical Audit', price: 100, description: 'Full home safety inspection.' }
+    ],
+    testimonials: [
+      { author: 'Pierre', avatar: 'https://i.pravatar.cc/150?u=22', text: 'Very efficient and honest. Explained the issue clearly.', rating: 5, date: '1 month ago' }
     ]
   }
 ];
@@ -575,7 +625,7 @@ export default function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsStarting(false);
-    }, 8500);
+    }, 5500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -867,12 +917,18 @@ export default function App() {
       </AnimatePresence>
 
       {/* Header */}
-      <header className="bg-white px-6 py-4 flex justify-between items-center border-b border-slate-100 flex-shrink-0 z-30">
+      <header className="bg-white px-6 py-3 flex justify-between items-center border-b border-slate-100 flex-shrink-0 z-30">
         <div 
           onClick={() => navigateTo('home')}
-          className="hover:opacity-80 transition-opacity cursor-pointer flex items-center"
+          className="hover:opacity-80 transition-opacity cursor-pointer flex flex-col justify-center gap-1"
         >
           <Logo className="items-start" />
+          <div className="flex items-center gap-1.5 ml-0.5 opacity-60">
+            <div className="flex items-center justify-center w-3.5 h-3.5 bg-rose-50 rounded-full">
+              <MapPin className="w-2 h-2 text-rose-500" />
+            </div>
+            <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">{city || 'Valencia'}</span>
+          </div>
         </div>
         <motion.button 
           onClick={() => setShowAddPro(true)}
@@ -1780,7 +1836,7 @@ function HomeView({ onNavigate, onAddPro, ads, onSelectAd, onSelectPost }: { onN
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 text-center md:text-left">
         <div className="space-y-1 flex flex-col items-center md:items-start">
           <h2 className="text-3xl md:text-4xl font-bold font-display text-brand-navy">Hola, Vincent! 👋</h2>
-          <p className="text-slate-500 text-lg">Welcome back to Valencia community.</p>
+          <p className="text-slate-500 text-lg">Welcome back to your local community.</p>
         </div>
       </div>
 
@@ -2009,165 +2065,371 @@ function HighlightCarousel({ onNavigate }: { onNavigate: (view: View) => void })
 
 function ExploreView({ onNavigate }: { onNavigate: (view: View) => void }) {
   const [search, setSearch] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState('All');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedLanguage, setSelectedLanguage] = useState('All');
   const [selectedPro, setSelectedPro] = useState<Professional | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [maxDistance, setMaxDistance] = useState<number | 'All'>('All');
 
-  const categories = ['All', 'Plumber', 'Lawyer', 'Translator', 'Real Estate', 'Handyman'];
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        () => {
+          // Default to Valencia center if denied
+          setUserLocation({ lat: 39.4699, lng: -0.3763 });
+        }
+      );
+    } else {
+      setUserLocation({ lat: 39.4699, lng: -0.3763 });
+    }
+  }, []);
+
+  const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371; // km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
+  const categoryGroups: Record<string, { icon: any, categories: string[] }> = {
+    'Home Services': { 
+      icon: <Home className="w-4 h-4" />, 
+      categories: ['Plumber', 'Handyman', 'Electrician', 'Carpenter', 'Locksmith'] 
+    },
+    'Legal & Admin': { 
+      icon: <FileText className="w-4 h-4" />, 
+      categories: ['Lawyer', 'Accountant', 'Translator', 'Real Estate', 'Insurance'] 
+    },
+    'Health & Lifestyle': { 
+      icon: <Heart className="w-4 h-4" />, 
+      categories: ['Dentist', 'Yoga', 'Personal Trainer', 'Doctor', 'Therapist'] 
+    }
+  };
+
+  const allCategories = Object.values(categoryGroups).flatMap(g => g.categories);
+  const currentCategories = selectedGroup === 'All' 
+    ? [] 
+    : categoryGroups[selectedGroup]?.categories || [];
+
   const languages = ['All', 'Spanish', 'English', 'French', 'German', 'Italian'];
+  const distances = ['All', 0.5, 1, 2, 5, 10];
 
-  const hasActiveFilter = search.trim() !== '' || selectedCategory !== 'All';
+  const hasActiveFilter = search.trim() !== '' || selectedGroup !== 'All' || selectedCategory !== 'All' || selectedLanguage !== 'All' || maxDistance !== 'All';
 
   const filteredPros = hasActiveFilter 
-    ? MOCK_PROS.filter(pro => 
-        (selectedCategory === 'All' || pro.category === selectedCategory) &&
-        (selectedLanguage === 'All' || pro.languages.includes(selectedLanguage)) &&
-        (pro.name.toLowerCase().includes(search.toLowerCase()) || pro.category.toLowerCase().includes(search.toLowerCase()))
-      )
-    : [];
+    ? MOCK_PROS.filter(pro => {
+        const matchesGroup = selectedGroup === 'All' || categoryGroups[selectedGroup].categories.includes(pro.category);
+        const matchesCategory = selectedCategory === 'All' || pro.category === selectedCategory;
+        const matchesLanguage = selectedLanguage === 'All' || pro.languages.includes(selectedLanguage);
+        const matchesSearch = pro.name.toLowerCase().includes(search.toLowerCase()) || 
+                            pro.category.toLowerCase().includes(search.toLowerCase()) ||
+                            pro.bio.toLowerCase().includes(search.toLowerCase());
+        
+        let matchesDistance = true;
+        if (maxDistance !== 'All' && userLocation && pro.coordinates) {
+          const dist = getDistance(userLocation.lat, userLocation.lng, pro.coordinates.lat, pro.coordinates.lng);
+          matchesDistance = dist <= (maxDistance as number);
+        }
+
+        return matchesGroup && matchesCategory && matchesLanguage && matchesSearch && matchesDistance;
+      })
+    : MOCK_PROS.slice(0, 4);
 
   return (
     <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="p-6 space-y-8 pb-24"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className="p-4 md:p-8 space-y-12 pb-32 max-w-7xl mx-auto"
     >
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <h2 className="text-3xl font-bold font-display text-brand-navy">Find Trusted Pros</h2>
-          <p className="text-slate-500">Verified experts recommended by the community.</p>
-        </div>
-
-        <div className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input 
-              type="text" 
-              placeholder="Search by name or service..." 
-              className="w-full pl-12 pr-4 py-4 bg-white rounded-2xl border border-slate-200 focus:ring-2 focus:ring-brand-blue outline-none shadow-sm transition-all"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
-              <Filter className="w-3 h-3" /> Categories
-            </div>
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 no-swipe">
-              {categories.map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={cn(
-                    "px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all border active:scale-95 hover:shadow-md",
-                    selectedCategory === cat 
-                      ? "bg-slate-900 text-white border-slate-900 shadow-md" 
-                      : "bg-white text-slate-600 border-slate-200 hover:border-brand-blue/30"
-                  )}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
-              <Languages className="w-3 h-3" /> Languages
-            </div>
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 no-swipe">
-              {languages.map(lang => (
-                <button
-                  key={lang}
-                  onClick={() => setSelectedLanguage(lang)}
-                  className={cn(
-                    "px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all border active:scale-95 hover:shadow-md",
-                    selectedLanguage === lang 
-                      ? "bg-brand-blue text-white border-brand-blue shadow-md" 
-                      : "bg-white text-slate-600 border-slate-200 hover:border-brand-blue/30"
-                  )}
-                >
-                  {lang}
-                </button>
-              ))}
-            </div>
-          </div>
+      {/* Hero Section */}
+      <div className="relative overflow-hidden rounded-[40px] bg-slate-900 px-6 py-16 md:px-16 md:py-24 text-white shadow-2xl">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-brand-blue/20 blur-[120px] rounded-full -mr-48 -mt-48" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/10 blur-[120px] rounded-full -ml-48 -mb-48" />
+        
+        <div className="relative z-10 max-w-3xl space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-xs font-bold uppercase tracking-widest text-brand-blue"
+          >
+            <CheckCircle2 className="w-3 h-3" /> Community Verified
+          </motion.div>
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-5xl md:text-6xl lg:text-7xl font-bold font-display leading-[0.95] tracking-tight"
+          >
+            Find a <span className="text-brand-blue italic">Professional.</span>
+          </motion.h2>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl mx-auto w-full">
-        {!hasActiveFilter ? (
-          <div className="col-span-full py-20 text-center space-y-4">
-            <div className="w-20 h-20 bg-brand-blue/5 rounded-full flex items-center justify-center mx-auto">
-              <Search className="w-10 h-10 text-brand-blue/30" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-slate-900 font-bold text-lg">Search for Professionals</p>
-              <p className="text-slate-500">Type a name or select a category to see results.</p>
+      {/* Search & Filters */}
+      <div className="space-y-10">
+        <div className="grid lg:grid-cols-12 gap-8 items-end">
+          <div className="lg:col-span-7 space-y-4">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] px-1">
+              Who are you looking for?
+            </label>
+            <div className="relative group">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-400 group-focus-within:text-brand-blue transition-colors" />
+              <input 
+                type="text" 
+                placeholder="Search by name, service or expertise..." 
+                className="w-full pl-14 pr-6 py-5 md:py-6 bg-white rounded-3xl border border-slate-200 focus:ring-8 focus:ring-brand-blue/5 focus:border-brand-blue outline-none shadow-xl shadow-slate-200/20 transition-all text-slate-700 font-semibold text-lg md:text-xl placeholder:text-slate-300"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
             </div>
           </div>
-        ) : filteredPros.length > 0 ? (
-          filteredPros.map(pro => (
-            <motion.div 
-              key={pro.id} 
-              layout
-              onClick={() => setSelectedPro(pro)}
-              className="card bg-white p-5 flex flex-col gap-4 border border-slate-100 transition-all shadow-sm hover-lift group cursor-pointer"
-            >
-              <div className="flex gap-4">
-                <div className="w-20 h-20 rounded-2xl bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-100">
-                  <img src={pro.image} alt={pro.name} className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-1 space-y-1">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <h4 className="font-bold text-slate-900 text-lg group-hover:text-brand-blue transition-colors">{pro.name}</h4>
-                        {pro.verified && <CheckCircle2 className="w-4 h-4 text-brand-blue fill-brand-blue/10" />}
-                      </div>
-                      <p className="text-sm font-medium text-brand-blue">{pro.category}</p>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">
-                        <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-                        <span className="text-xs font-bold text-amber-700">{pro.rating}</span>
-                      </div>
-                      <span className="text-[10px] text-slate-400 mt-1">{pro.reviews} reviews</span>
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
-                    {pro.bio}
-                  </p>
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {pro.languages.map(lang => (
-                      <span key={lang} className="px-2 py-0.5 bg-slate-50 text-slate-500 rounded-md text-[10px] font-medium border border-slate-100">
-                        {lang}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))
-        ) : (
-          <div className="col-span-full py-12 text-center space-y-3">
-            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto">
-              <Search className="w-8 h-8 text-slate-300" />
-            </div>
-            <p className="text-slate-500 font-medium">No professionals found matching your filters.</p>
+          
+          <div className="lg:col-span-5 flex items-center justify-end px-2 pb-2">
             <button 
-              onClick={() => { setSearch(''); setSelectedCategory('All'); setSelectedLanguage('All'); }}
-              className="text-brand-blue font-bold text-sm"
+              onClick={() => { setSearch(''); setSelectedGroup('All'); setSelectedCategory('All'); setSelectedLanguage('All'); setMaxDistance('All'); }}
+              className="group flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase tracking-widest"
             >
-              Clear all filters
+              <RotateCcw className="w-3.5 h-3.5 group-hover:rotate-[-45deg] transition-transform" />
+              Reset
             </button>
           </div>
-        )}
+        </div>
+
+        {/* Category Groups */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between px-1">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
+              Select Category
+            </label>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => { setSelectedGroup('All'); setSelectedCategory('All'); }}
+              className={cn(
+                "px-6 py-3.5 rounded-[20px] text-sm font-bold transition-all border flex items-center gap-2 active:scale-95 shadow-sm",
+                selectedGroup === 'All' 
+                  ? "bg-slate-900 text-white border-slate-900 shadow-xl shadow-slate-900/20" 
+                  : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
+              )}
+            >
+              All Categories
+            </button>
+            {Object.entries(categoryGroups).map(([name, data]) => (
+              <button
+                key={name}
+                onClick={() => { setSelectedGroup(name); setSelectedCategory('All'); }}
+                className={cn(
+                  "px-6 py-3.5 rounded-[20px] text-sm font-bold transition-all border flex items-center gap-2 active:scale-95 shadow-sm",
+                  selectedGroup === name 
+                    ? "bg-brand-blue text-white border-brand-blue shadow-xl shadow-brand-blue/20" 
+                    : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
+                )}
+              >
+                {data.icon}
+                {name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Sub-categories (revealed on group selection) */}
+        <AnimatePresence mode="wait">
+          {selectedGroup !== 'All' && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="space-y-4 overflow-hidden"
+            >
+              <div className="flex items-center gap-2 px-1">
+                <div className="w-1 h-4 bg-brand-blue rounded-full" />
+                <label className="text-[10px] font-bold text-brand-blue uppercase tracking-[0.2em]">
+                  Specific Expertise
+                </label>
+              </div>
+              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 no-swipe">
+                <button
+                  onClick={() => setSelectedCategory('All')}
+                  className={cn(
+                    "px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border uppercase tracking-wider",
+                    selectedCategory === 'All' 
+                      ? "bg-slate-200 text-slate-900 border-slate-300" 
+                      : "bg-slate-50 text-slate-400 border-slate-100"
+                  )}
+                >
+                  All {selectedGroup}
+                </button>
+                {currentCategories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={cn(
+                      "px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border uppercase tracking-wider",
+                      selectedCategory === cat 
+                        ? "bg-brand-blue/10 text-brand-blue border-brand-blue/20" 
+                        : "bg-slate-50 text-slate-400 border-slate-100 hover:border-slate-200"
+                    )}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Distance Filter */}
+        <div className="space-y-4">
+          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] px-1 flex items-center gap-2">
+            <MapPin className="w-3 h-3" /> Distance from me
+          </label>
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 no-swipe">
+            {distances.map(d => (
+              <button
+                key={d.toString()}
+                onClick={() => setMaxDistance(d as any)}
+                className={cn(
+                  "px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border active:scale-95",
+                  maxDistance === d 
+                    ? "bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/20" 
+                    : "bg-white text-slate-400 border-slate-200 hover:border-slate-300"
+                )}
+              >
+                {d === 'All' ? 'Everywhere' : `${(d as number) < 1 ? (d as number) * 1000 + 'm' : d + 'km'}`}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Language Filter */}
+        <div className="space-y-4">
+          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] px-1">
+            Spoken Languages
+          </label>
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 no-swipe">
+            {languages.map(lang => (
+              <button
+                key={lang}
+                onClick={() => setSelectedLanguage(lang)}
+                className={cn(
+                  "px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border active:scale-95",
+                  selectedLanguage === lang 
+                    ? "bg-slate-900 text-white border-slate-900" 
+                    : "bg-white text-slate-400 border-slate-200 hover:border-slate-300"
+                )}
+              >
+                {lang}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Professional Detail Modal */}
+      {/* Results Section */}
+      <div className="pt-8">
+        <div className="flex items-end justify-between mb-10 px-1">
+          <div className="space-y-1">
+            <h3 className="text-2xl md:text-3xl font-bold font-display text-slate-900 flex items-center gap-4">
+              {hasActiveFilter ? 'Search Results' : 'Recommended for you'}
+              <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-100 rounded-full">
+                <span className="text-[10px] font-black text-slate-500 uppercase">{filteredPros.length}</span>
+              </div>
+            </h3>
+            <p className="text-slate-400 text-sm font-medium">Top rated experts matching your preferences.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {filteredPros.length > 0 ? (
+            filteredPros.map((pro, index) => (
+              <motion.div 
+                key={pro.id} 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                onClick={() => setSelectedPro(pro)}
+                className="group relative bg-white rounded-[40px] p-8 flex flex-col md:flex-row gap-8 border border-slate-100 transition-all shadow-sm hover:shadow-2xl hover:shadow-brand-blue/10 hover:border-brand-blue/20 cursor-pointer overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-40 h-40 bg-slate-50 rounded-full -mr-20 -mt-20 group-hover:bg-brand-blue/5 transition-colors duration-500" />
+                
+                <div className="relative w-28 h-28 md:w-36 md:h-36 rounded-[32px] bg-slate-100 overflow-hidden flex-shrink-0 border-4 border-white shadow-xl group-hover:scale-105 transition-transform duration-700">
+                  <img src={pro.image} alt={pro.name} className="w-full h-full object-cover" />
+                </div>
+
+                <div className="relative flex-1 flex flex-col justify-between min-w-0 py-1">
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold text-slate-900 text-2xl truncate group-hover:text-brand-blue transition-colors tracking-tight">{pro.name}</h4>
+                        {pro.verified && (
+                          <div className="flex items-center justify-center w-5 h-5 bg-brand-blue rounded-full shadow-lg shadow-brand-blue/20">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[10px] font-black px-2.5 py-1 bg-brand-blue/10 text-brand-blue rounded-lg uppercase tracking-[0.1em]">{pro.category}</span>
+                        <div className="flex items-center gap-1">
+                          <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                          <span className="text-xs font-black text-slate-700">{pro.rating}</span>
+                          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">({pro.reviews})</span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-sm text-slate-400 line-clamp-2 leading-relaxed font-semibold">
+                      {pro.bio}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between mt-8 pt-4 border-t border-slate-50">
+                    <div className="flex flex-wrap gap-2">
+                      {pro.languages.slice(0, 3).map(lang => (
+                        <span key={lang} className="px-3 py-1.5 bg-slate-50 text-slate-500 rounded-xl text-[10px] font-bold border border-slate-100">
+                          {lang}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="p-3 bg-brand-blue/5 rounded-2xl group-hover:bg-brand-blue group-hover:text-white transition-all text-brand-blue">
+                      <ChevronRight className="w-5 h-5" />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))
+          ) : (
+            <div className="col-span-full py-32 text-center space-y-6">
+              <div className="w-32 h-32 bg-slate-50 rounded-full flex items-center justify-center mx-auto ring-1 ring-slate-100">
+                <Search className="w-12 h-12 text-slate-200" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-slate-900 font-bold text-2xl">No top experts found</p>
+                <p className="text-slate-400 max-w-md mx-auto font-medium">Try broadening your search or choosing a different community category.</p>
+              </div>
+              <button 
+                onClick={() => { setSearch(''); setSelectedGroup('All'); setSelectedCategory('All'); setSelectedLanguage('All'); }}
+                className="mt-4 px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm shadow-2xl shadow-slate-900/20 hover:scale-105 transition-all active:scale-95"
+              >
+                Clear all filters
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Detail Modal Integration */}
       <AnimatePresence>
         {selectedPro && (
           <ProfessionalDetailView 
@@ -2303,168 +2565,184 @@ function MessagesView() {
 
 function ProfessionalDetailView({ pro, onClose, onNavigate }: { pro: Professional, onClose: () => void, onNavigate: (view: View) => void }) {
   return (
-    <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] overflow-y-auto overscroll-contain" onClick={onClose}>
-      <div className="min-h-full flex items-start justify-center p-4 py-12">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xl z-[100] overflow-y-auto overscroll-contain flex justify-center" onClick={onClose}>
+      <div className="min-h-full w-full max-w-2xl flex items-start p-4 md:p-8">
         <motion.div 
-          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          initial={{ scale: 0.95, opacity: 0, y: 30 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.9, opacity: 0, y: 20 }}
-          className="bg-white w-full max-w-2xl rounded-[32px] overflow-hidden shadow-2xl my-auto relative"
+          exit={{ scale: 0.95, opacity: 0, y: 30 }}
+          className="bg-white w-full rounded-[40px] overflow-hidden shadow-2xl relative my-auto"
           onClick={e => e.stopPropagation()}
         >
-          {/* Header Image/Cover */}
-          <div className="h-48 bg-gradient-to-r from-brand-blue/20 to-brand-yellow/20 relative">
-            <button 
-              onClick={onClose} 
-              className="absolute top-6 right-6 p-2 bg-white/90 backdrop-blur rounded-full shadow-lg text-slate-400 hover:text-slate-600 transition-colors z-10"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+        {/* Header Image/Cover Area */}
+        <div className="h-40 md:h-48 bg-gradient-to-br from-brand-blue/30 via-slate-100 to-amber-500/10 relative">
+          <button 
+            onClick={onClose} 
+            className="absolute top-6 right-6 p-2.5 bg-white/40 hover:bg-white/90 backdrop-blur-md rounded-full shadow-lg text-slate-600 transition-all z-10 active:scale-95"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-          <div className="px-8 pb-10 -mt-16 relative">
-            <div className="flex flex-col md:flex-row gap-6 md:items-end mb-8">
-              <div className="w-32 h-32 rounded-[32px] bg-white p-1 overflow-hidden shadow-xl border-4 border-white">
-                <img src={pro.image} alt={pro.name} className="w-full h-full object-cover rounded-[28px]" />
+        <div className="px-6 md:px-10 pb-10 -mt-16 relative">
+          <div className="flex flex-col md:flex-row gap-6 md:items-end mb-10">
+            <div className="w-32 h-32 md:w-36 md:h-36 rounded-[32px] bg-white p-1.5 overflow-hidden shadow-2xl border-4 border-white ring-1 ring-slate-100 group">
+              <img src={pro.image} alt={pro.name} className="w-full h-full object-cover rounded-[24px] group-hover:scale-110 transition-transform duration-700" />
+            </div>
+            <div className="flex-1 space-y-3 pb-2">
+              <div className="flex flex-wrap items-center gap-3">
+                <h3 className="text-3xl md:text-4xl font-black text-slate-900 font-display tracking-tight leading-none">{pro.name}</h3>
+                {pro.verified && (
+                  <div className="flex items-center gap-1 px-2.5 py-1 bg-brand-blue text-white rounded-full shadow-lg shadow-brand-blue/20">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Verified</span>
+                  </div>
+                )}
               </div>
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-3xl font-black text-slate-900 font-display tracking-tight">{pro.name}</h3>
-                  {pro.verified && (
-                    <div className="flex items-center gap-1 px-2 py-0.5 bg-brand-blue/10 rounded-full">
-                      <CheckCircle2 className="w-4 h-4 text-brand-blue" />
-                      <span className="text-[10px] font-bold text-brand-blue uppercase">Verified</span>
-                    </div>
-                  )}
+              <div className="flex flex-wrap items-center gap-3 text-sm">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-blue/5 text-brand-blue rounded-xl font-bold border border-brand-blue/10">
+                  <Briefcase className="w-3.5 h-3.5" />
+                  {pro.category}
                 </div>
-                <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-500">
-                  <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 rounded-full border border-slate-100">
-                    <Briefcase className="w-3.5 h-3.5 text-brand-blue" />
-                    {pro.category}
-                  </div>
-                  <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 rounded-full border border-slate-100">
-                    <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                    <span className="text-slate-700 font-bold">{pro.rating}</span>
-                    <span className="text-slate-400">({pro.reviews} reviews)</span>
-                  </div>
-                  {pro.location && (
-                    <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 rounded-full border border-slate-100">
-                      <MapPin className="w-3.5 h-3.5 text-rose-500" />
-                      {pro.location}
-                    </div>
-                  )}
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 text-slate-600 rounded-xl font-bold border border-slate-100">
+                  <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                  <span>{pro.rating}</span>
+                  <span className="text-slate-400 font-medium">({pro.reviews} reviews)</span>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="md:col-span-2 space-y-8">
-                <section className="space-y-3">
-                  <h4 className="text-lg font-bold text-slate-900 font-display flex items-center gap-2">
-                    <div className="w-1.5 h-6 bg-brand-blue rounded-full" />
-                    About
-                  </h4>
-                  <p className="text-slate-600 leading-relaxed text-base">
-                    {pro.bio}
-                  </p>
-                </section>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div className="md:col-span-2 space-y-10">
+              <section className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-brand-blue" />
+                  <h4 className="text-lg font-bold text-slate-900 font-display uppercase tracking-wider">Expert Bio</h4>
+                </div>
+                <p className="text-slate-600 leading-relaxed text-base font-medium">
+                  {pro.bio}
+                </p>
+              </section>
 
-                <section className="space-y-6">
-                  <h4 className="text-lg font-bold text-slate-900 font-display flex items-center gap-2">
-                    <div className="w-1.5 h-6 bg-brand-blue rounded-full" />
-                    Reviews & Testimonials
-                  </h4>
-                  <div className="space-y-4">
-                    {pro.testimonials.map((t, i) => (
-                      <div key={i} className="p-6 bg-white rounded-3xl border border-slate-100 shadow-sm space-y-4">
-                        <div className="flex justify-between items-start">
-                          <div className="flex gap-3 items-center">
-                            <img src={t.avatar} alt="" className="w-10 h-10 rounded-full border-2 border-slate-50" />
-                            <div>
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onClose();
-                                  onNavigate('messages');
-                                }}
-                                className="font-bold text-slate-900 hover:text-brand-blue flex items-center gap-1.5 transition-colors"
-                              >
-                                {t.author}
-                                <MessageCircle className="w-3.5 h-3.5" />
-                              </button>
-                              <div className="flex items-center gap-1">
-                                {[...Array(t.rating)].map((_, i) => (
-                                  <Star key={i} className="w-2.5 h-2.5 text-amber-400 fill-amber-400" />
-                                ))}
-                              </div>
+              <section className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-brand-blue" />
+                    <h4 className="text-lg font-bold text-slate-900 font-display uppercase tracking-wider">Community feedback</h4>
+                  </div>
+                </div>
+                <div className="grid gap-4">
+                  {pro.testimonials.map((t, i) => (
+                    <motion.div 
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="p-6 bg-slate-50/50 rounded-3xl border border-slate-100/50 hover:bg-white hover:shadow-xl hover:border-brand-blue/10 transition-all group"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex gap-3 items-center">
+                          <img src={t.avatar} alt="" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" />
+                          <div>
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onClose();
+                                onNavigate('messages');
+                              }}
+                              className="font-bold text-slate-900 hover:text-brand-blue flex items-center gap-1.5 transition-colors"
+                            >
+                              {t.author}
+                              <MessageCircle className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </button>
+                            <div className="flex items-center gap-0.5">
+                              {[...Array(5)].map((_, idx) => (
+                                <Star key={idx} className={cn("w-2.5 h-2.5", idx < t.rating ? "text-amber-400 fill-amber-400" : "text-slate-200")} />
+                              ))}
                             </div>
                           </div>
-                          <span className="text-[10px] font-medium text-slate-400">{t.date}</span>
                         </div>
-                        <p className="text-slate-600 text-sm italic leading-relaxed">
-                          "{t.text}"
-                        </p>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t.date}</span>
                       </div>
-                    ))}
-                  </div>
-                </section>
-              </div>
+                      <p className="text-slate-600 text-sm leading-relaxed font-medium pl-1">
+                        "{t.text}"
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              </section>
+            </div>
 
-              <div className="space-y-6">
-                <div className="p-6 bg-slate-50 rounded-[32px] border border-slate-100 space-y-6">
-                  <h4 className="font-bold text-slate-900 text-sm uppercase tracking-wider">Contact Details</h4>
-                  
-                  <div className="space-y-4">
-                    {pro.phone && (
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Phone</label>
-                        <a href={`tel:${pro.phone}`} className="flex items-center gap-3 text-slate-700 hover:text-brand-blue transition-colors group">
-                          <div className="p-2 bg-white rounded-lg shadow-sm group-hover:shadow-md transition-all">
-                            <Phone className="w-4 h-4" />
-                          </div>
-                          <span className="font-bold text-sm">{pro.phone}</span>
-                        </a>
-                      </div>
-                    )}
-                    
-                    {pro.email && (
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email</label>
-                        <a href={`mailto:${pro.email}`} className="flex items-center gap-3 text-slate-700 hover:text-brand-blue transition-colors group">
-                          <div className="p-2 bg-white rounded-lg shadow-sm group-hover:shadow-md transition-all">
-                            <Mail className="w-4 h-4" />
-                          </div>
-                          <span className="font-bold text-sm">{pro.email}</span>
-                        </a>
-                      </div>
-                    )}
-
-                    <div className="space-y-1 border-t border-slate-200 pt-4">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Languages</label>
-                      <div className="flex flex-wrap gap-2 mt-1">
-                        {pro.languages.map(lang => (
-                          <span key={lang} className="px-2 py-1 bg-white rounded-lg text-[10px] font-bold text-slate-600 shadow-sm border border-slate-100">
-                            {lang}
-                          </span>
-                        ))}
-                      </div>
+            <div className="space-y-6">
+              <div className="p-8 bg-slate-900 rounded-[32px] text-white space-y-8 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-blue/20 blur-3xl -mr-16 -mt-16 group-hover:bg-brand-blue/30 transition-colors" />
+                
+                <h4 className="font-bold text-sm uppercase tracking-[0.2em] text-slate-400 relative z-10">Direct Contact</h4>
+                
+                <div className="space-y-6 relative z-10">
+                  {pro.phone && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Phone</p>
+                      <a href={`tel:${pro.phone}`} className="font-bold text-lg hover:text-brand-blue cursor-pointer transition-colors break-all block">{pro.phone}</a>
                     </div>
-
-                    {pro.experience && (
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Experience</label>
-                        <p className="text-sm font-bold text-slate-700">{pro.experience}</p>
-                      </div>
-                    )}
+                  )}
+                  {pro.email && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Email</p>
+                      <a href={`mailto:${pro.email}`} className="font-bold text-sm hover:text-brand-blue cursor-pointer transition-colors break-all block">{pro.email}</a>
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Languages</p>
+                    <div className="flex flex-wrap gap-2">
+                      {pro.languages.map(lang => (
+                        <span key={lang} className="px-2.5 py-1 bg-white/10 rounded-lg text-[10px] font-bold border border-white/10 backdrop-blur-sm">
+                          {lang}
+                        </span>
+                      ))}
+                    </div>
                   </div>
+                  {pro.experience && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Experience</p>
+                      <p className="font-bold text-sm">{pro.experience}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-4 relative z-10">
+                  <button 
+                    onClick={() => {
+                      onClose();
+                      onNavigate('messages');
+                    }}
+                    className="w-full bg-brand-blue hover:bg-brand-blue/90 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-95 shadow-xl shadow-brand-blue/20"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    Message Now
+                  </button>
                 </div>
               </div>
+
+              {pro.location && (
+                <div className="p-6 bg-slate-50 rounded-[32px] border border-slate-100 flex items-center gap-4">
+                  <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center">
+                    <MapPin className="w-6 h-6 text-rose-500" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Location</p>
+                    <p className="font-bold text-slate-900">{pro.location}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
     </div>
-  );
+  </div>
+);
 }
 
 function EventsView() {
@@ -2476,7 +2754,7 @@ function EventsView() {
       className="p-6 space-y-6"
     >
       <div className="space-y-1">
-        <h2 className="text-2xl font-bold font-display text-brand-navy">What's Up in Valencia</h2>
+        <h2 className="text-2xl font-bold font-display text-brand-navy">What's Up in Your City</h2>
         <p className="text-slate-500">Discover meetups and cultural events.</p>
       </div>
 
@@ -2592,7 +2870,7 @@ function GuidesView() {
     >
       <div className="space-y-2">
         <h2 className="text-3xl font-bold font-display text-brand-navy">Relocation Guides</h2>
-        <p className="text-slate-500 text-lg">Everything you need to know to settle in Valencia.</p>
+        <p className="text-slate-500 text-lg">Everything you need to know to settle into your new life.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-7xl mx-auto w-full">
@@ -3377,24 +3655,23 @@ function ProfileView() {
         )}
 
         {activeSubPage === 'About' && (
-          <ProfileSubPage title="About Valencia" onBack={() => setActiveSubPage(null)}>
+          <ProfileSubPage title="About Unlock'd" onBack={() => setActiveSubPage(null)}>
             <div className="flex flex-col items-center text-center space-y-8 py-8">
-              <div className="w-24 h-24 bg-brand-blue rounded-3xl flex items-center justify-center shadow-xl shadow-brand-blue/20">
-                <span className="text-4xl font-black text-white">V</span>
-              </div>
+              <Logo className="scale-125 mb-4" />
               <div className="space-y-2">
-                <h3 className="text-2xl font-bold font-display">Valencia Community</h3>
-                <p className="text-slate-500">Version 1.2.4 (Build 452)</p>
+                <h3 className="text-2xl font-bold font-display">Unlock'd Community</h3>
+                <p className="text-slate-500 italic max-w-xs">Helping you unlock your new city through community-vetted professionals.</p>
+                <p className="text-slate-400 text-xs mt-2 font-mono uppercase tracking-widest">Version 1.3.0</p>
               </div>
-              <div className="w-full space-y-2">
-                {['Terms of Service', 'Privacy Policy', 'Cookie Policy', 'Licenses'].map((item, i) => (
-                  <button key={i} className="w-full p-4 bg-white rounded-xl border border-slate-100 flex justify-between items-center">
+              <div className="w-full space-y-2 px-2">
+                {['Terms of Service', 'Privacy Policy', 'Community Guidelines'].map((item, i) => (
+                  <button key={i} className="w-full p-4 bg-white rounded-xl border border-slate-100 flex justify-between items-center hover:bg-slate-50 transition-colors">
                     <span className="font-medium text-slate-700">{item}</span>
                     <ChevronRight className="w-4 h-4 text-slate-300" />
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-slate-400">© 2024 Valencia Community App. All rights reserved.</p>
+              <p className="text-xs text-slate-400">© 2024 Unlock'd. All rights reserved.</p>
             </div>
           </ProfileSubPage>
         )}
@@ -3428,107 +3705,50 @@ function ProfileSubPage({ title, onBack, children }: { title: string, onBack: ()
 function SplashScreen() {
   return (
     <motion.div
-      initial={{ opacity: 1 }}
-      exit={{ opacity: 0, scale: 1.05 }}
-      transition={{ duration: 1, ease: [0.43, 0.13, 0.23, 0.96] }}
-      className="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center overflow-hidden"
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
     >
-      <div className="relative z-10 flex flex-col items-center">
-        {/* Main Logo Animation Group */}
-        <div className="relative flex items-center justify-center h-32 mb-12">
-          {/* Left Blue Arc */}
-          <motion.div
-            initial={{ x: 25, opacity: 0 }}
-            animate={{ x: -140, opacity: 1 }}
-            transition={{ 
-              duration: 2.5, 
-              delay: 0.2,
-              ease: [0.16, 1, 0.3, 1]
+      {/* Background Panels for the "Door" effect */}
+      <motion.div 
+        className="absolute inset-y-0 left-0 w-1/2 bg-white z-0"
+        initial={{ x: 0 }}
+        exit={{ x: '-100%', transition: { duration: 1.2, ease: [0.7, 0, 0.3, 1] } }}
+      />
+      <motion.div 
+        className="absolute inset-y-0 right-0 w-1/2 bg-white z-0"
+        initial={{ x: 0 }}
+        exit={{ x: '100%', transition: { duration: 1.2, ease: [0.7, 0, 0.3, 1] } }}
+      />
+
+      <motion.div 
+        className="relative z-10 flex flex-col items-center"
+        initial={{ opacity: 1 }}
+        exit={{ 
+          opacity: 0, 
+          scale: 1.2,
+          filter: "blur(20px)",
+          transition: { duration: 0.8, ease: "easeIn" } 
+        }}
+      >
+        <div className="relative flex items-center justify-center h-48 mb-12">
+          <motion.img
+            src="/logo.png"
+            alt="Unlock'd Logo"
+            initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1, 
+              filter: "blur(0px)",
+              rotate: [0, -5, 5, -5, 5, 0], // Shake animation
             }}
-            className="z-20"
-          >
-            <svg width="40" height="100" viewBox="0 0 24 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-24 md:h-32 w-auto">
-              <path d="M22 2C10 8 2 20 2 30C2 40 10 52 22 58" stroke="#00AEEF" strokeWidth="4" strokeLinecap="round" />
-            </svg>
-          </motion.div>
-
-          {/* Center Name - Appears as the circle splits */}
-          <div className="absolute flex items-center justify-center">
-            <div className="flex items-center">
-              {"unlock".split("").map((char, i) => {
-                // Grouping: 'lock' (indices 2-5) first, then 'un' (0-1)
-                let delay;
-                if (i >= 2) {
-                  // "lock" letters appear first with a synchronized reveal
-                  delay = 0.5 + ((i - 2) * 0.12);
-                } else {
-                  // "un" follows shortly after "lock" starts appearing
-                  delay = 1.4 + (i * 0.15);
-                }
-                
-                return (
-                  <motion.span
-                    key={i}
-                    initial={{ opacity: 0, filter: "blur(8px)" }}
-                    animate={{ opacity: 1, filter: "blur(0px)" }}
-                    transition={{ 
-                      duration: 1.4, // Keep it smooth
-                      delay: delay,
-                      ease: [0.4, 0, 0.2, 1]
-                    }}
-                    className="text-5xl md:text-6xl font-medium tracking-tight text-[#0A1629] font-display inline-block"
-                  >
-                    {char}
-                  </motion.span>
-                );
-              })}
-              
-              <motion.div
-                initial={{ rotate: -180, scale: 0, opacity: 0 }}
-                animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                transition={{ 
-                  type: "spring",
-                  stiffness: 120,
-                  damping: 15,
-                  delay: 1.1 // Show icon as "lock" becomes clear
-                }}
-                className="mx-1.5 md:mx-3"
-              >
-                <svg width="36" height="36" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 md:w-10 md:h-10">
-                  <path d="M10 0L12.5 7.5L20 10L12.5 12.5L10 20L7.5 12.5L0 10L7.5 7.5L10 0Z" fill="#FBB03B" />
-                </svg>
-              </motion.div>
-
-              <motion.span
-                initial={{ opacity: 0, filter: "blur(8px)" }}
-                animate={{ opacity: 1, filter: "blur(0px)" }}
-                transition={{ 
-                  duration: 1.4, 
-                  delay: 2.2, // "d" is the grand finale
-                  ease: [0.4, 0, 0.2, 1]
-                }}
-                className="text-5xl md:text-6xl font-medium tracking-tight text-[#0A1629] font-display inline-block"
-              >
-                d
-              </motion.span>
-            </div>
-          </div>
-
-          {/* Right Yellow Arc */}
-          <motion.div
-            initial={{ x: -25, opacity: 0 }}
-            animate={{ x: 140, opacity: 1 }}
             transition={{ 
-              duration: 2.5, 
-              delay: 0.2,
-              ease: [0.16, 1, 0.3, 1]
+              opacity: { duration: 2.5, delay: 0.5 },
+              scale: { duration: 2.5, delay: 0.5 },
+              filter: { duration: 2.5, delay: 0.5 },
+              rotate: { delay: 4, duration: 0.4, ease: "easeInOut" } // Key turn shake
             }}
-            className="z-20"
-          >
-            <svg width="40" height="100" viewBox="0 0 24 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-24 md:h-32 w-auto">
-              <path d="M2 2C14 8 22 20 22 30C22 40 14 52 2 58" stroke="#FBB03B" strokeWidth="4" strokeLinecap="round" />
-            </svg>
-          </motion.div>
+            className="h-32 md:h-40 w-auto object-contain"
+            referrerPolicy="no-referrer"
+          />
         </div>
 
         {/* Tagline and Progress Bar - Sits BELOW the arcs */}
@@ -3556,12 +3776,13 @@ function SplashScreen() {
             />
           </motion.div>
         </motion.div>
-      </div>
+      </motion.div>
 
       {/* Decorative background circle */}
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 0.03 }}
+        exit={{ opacity: 0, transition: { duration: 0.3 } }}
         transition={{ duration: 2, delay: 0.5 }}
         className="absolute inset-0 bg-brand-blue rounded-full blur-[100px] pointer-events-none"
       />

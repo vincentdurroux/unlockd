@@ -912,6 +912,10 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeView, selectedAd, selectedPost]);
+
   return (
     <div className="flex flex-col h-screen h-[100dvh] bg-white w-full mx-auto shadow-2xl overflow-hidden relative">
       <AnimatePresence>
@@ -1929,9 +1933,15 @@ function HomeView({ onNavigate, onAddPro, ads, onSelectAd, onSelectPost }: { onN
               onClick={() => onNavigate('explore')}
             >
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-hover:text-brand-blue transition-colors" />
-              <div className="w-full pl-12 pr-6 py-4 bg-white rounded-2xl border border-slate-100 text-slate-600 placeholder:text-slate-400 text-base hover:border-brand-blue/20 transition-all flex items-center shadow-sm group-hover:shadow-md">
-                Search for a pro...
-              </div>
+              <input 
+                readOnly
+                placeholder="Search for a pro..."
+                className="w-full pl-12 pr-6 py-4 bg-white rounded-2xl border border-slate-100 text-slate-600 placeholder:text-slate-400 text-base hover:border-brand-blue/20 transition-all cursor-pointer shadow-sm group-hover:shadow-md outline-none"
+                onClick={() => onNavigate('explore')}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') onNavigate('explore');
+                }}
+              />
             </div>
           </div>
           
@@ -2131,12 +2141,36 @@ function HighlightCarousel({ onNavigate }: { onNavigate: (view: View) => void })
 
 function ExploreView({ onNavigate }: { onNavigate: (view: View) => void }) {
   const [search, setSearch] = useState('');
+  const [deferredSearch, setDeferredSearch] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDeferredSearch(search);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
   const [selectedGroup, setSelectedGroup] = useState('All');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedLanguage, setSelectedLanguage] = useState('All');
   const [selectedPro, setSelectedPro] = useState<Professional | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [maxDistance, setMaxDistance] = useState<number | 'All'>('All');
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [selectedPro]);
+
+  // Handle manual search submission (button or Enter)
+  const handleSearchSubmit = () => {
+    setDeferredSearch(search); // Force update immediately
+    setIsInputFocused(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Visual feedback
+    setIsSearching(true);
+    setTimeout(() => setIsSearching(false), 600);
+  };
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -2192,16 +2226,16 @@ function ExploreView({ onNavigate }: { onNavigate: (view: View) => void }) {
   const languages = ['All', 'Spanish', 'English', 'French', 'German', 'Italian'];
   const distances = ['All', 0.5, 1, 2, 5, 10];
 
-  const hasActiveFilter = search.trim() !== '' || selectedGroup !== 'All' || selectedCategory !== 'All' || selectedLanguage !== 'All' || maxDistance !== 'All';
+  const hasActiveFilter = deferredSearch.trim() !== '' || selectedGroup !== 'All' || selectedCategory !== 'All' || selectedLanguage !== 'All' || maxDistance !== 'All';
 
   const filteredPros = hasActiveFilter 
     ? MOCK_PROS.filter(pro => {
         const matchesGroup = selectedGroup === 'All' || categoryGroups[selectedGroup].categories.includes(pro.category);
         const matchesCategory = selectedCategory === 'All' || pro.category === selectedCategory;
         const matchesLanguage = selectedLanguage === 'All' || pro.languages.includes(selectedLanguage);
-        const matchesSearch = pro.name.toLowerCase().includes(search.toLowerCase()) || 
-                            pro.category.toLowerCase().includes(search.toLowerCase()) ||
-                            pro.bio.toLowerCase().includes(search.toLowerCase());
+        const matchesSearch = pro.name.toLowerCase().includes(deferredSearch.toLowerCase()) || 
+                            pro.category.toLowerCase().includes(deferredSearch.toLowerCase()) ||
+                            pro.bio.toLowerCase().includes(deferredSearch.toLowerCase());
         
         let matchesDistance = true;
         if (maxDistance !== 'All' && userLocation && pro.coordinates) {
@@ -2251,15 +2285,95 @@ function ExploreView({ onNavigate }: { onNavigate: (view: View) => void }) {
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] px-1">
               Who are you looking for?
             </label>
-            <div className="relative group">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-400 group-focus-within:text-brand-blue transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Search by name, service or expertise..." 
-                className="w-full pl-14 pr-6 py-5 md:py-6 bg-white rounded-3xl border border-slate-200 focus:ring-8 focus:ring-brand-blue/5 focus:border-brand-blue outline-none shadow-xl shadow-slate-200/20 transition-all text-slate-700 font-semibold text-lg md:text-xl placeholder:text-slate-300"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+            <div className="relative group flex items-center gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-400 group-focus-within:text-brand-blue transition-colors" />
+                <input 
+                  type="text" 
+                  placeholder="Search by name, service or expertise..." 
+                  className="w-full pl-14 pr-6 py-5 md:py-6 bg-white rounded-3xl border border-slate-200 focus:ring-8 focus:ring-brand-blue/5 focus:border-brand-blue outline-none shadow-xl shadow-slate-200/20 transition-all text-slate-700 font-semibold text-lg md:text-xl placeholder:text-slate-300"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onFocus={() => setIsInputFocused(true)}
+                  onBlur={() => setTimeout(() => setIsInputFocused(false), 200)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSearchSubmit();
+                  }}
+                />
+                
+                {/* Live Search Results Dropdown */}
+                <AnimatePresence>
+                  {isInputFocused && search.trim().length > 1 && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute top-full left-0 right-0 mt-3 bg-white rounded-[2rem] border border-slate-100 shadow-2xl z-[150] overflow-hidden max-h-[400px] overflow-y-auto"
+                    >
+                      <div className="p-4 border-b border-slate-50 bg-slate-50/30">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Live matches</span>
+                      </div>
+                      
+                      {MOCK_PROS.filter(p => 
+                        p.name.toLowerCase().includes(search.toLowerCase()) || 
+                        p.category.toLowerCase().includes(search.toLowerCase())
+                      ).slice(0, 6).length > 0 ? (
+                        MOCK_PROS.filter(p => 
+                          p.name.toLowerCase().includes(search.toLowerCase()) || 
+                          p.category.toLowerCase().includes(search.toLowerCase())
+                        ).slice(0, 6).map((pro) => (
+                          <button
+                            key={pro.id}
+                            onClick={() => {
+                              setSelectedPro(pro);
+                              setSearch(pro.name);
+                              setIsInputFocused(false);
+                            }}
+                            className="w-full p-4 hover:bg-slate-50 transition-colors flex items-center gap-4 border-b border-slate-50 last:border-0 group/item"
+                          >
+                            <img src={pro.image} alt={pro.name} className="w-12 h-12 rounded-xl object-cover shadow-sm" />
+                            <div className="text-left">
+                              <h4 className="font-bold text-slate-900 group-hover/item:text-brand-blue transition-colors">{pro.name}</h4>
+                              <p className="text-xs text-slate-400">{pro.category} • {pro.location}</p>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-slate-300 ml-auto" />
+                          </button>
+                        ))
+                      ) : (
+                        <div className="p-8 text-center text-slate-400">
+                          <p className="text-sm font-medium">No instant matches for "{search}"</p>
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                  {search && (
+                    <motion.button
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      onClick={() => setSearch('')}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-slate-300 hover:text-slate-500 transition-colors"
+                    >
+                      <RotateCcw className="w-5 h-5" />
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+              </div>
+              <button 
+                onClick={handleSearchSubmit}
+                className="hidden md:flex items-center gap-2 px-8 py-5 bg-brand-blue text-white rounded-[24px] font-bold shadow-lg shadow-brand-blue/20 hover:bg-blue-600 transition-all active:scale-95 disabled:opacity-50"
+                disabled={isSearching}
+              >
+                {isSearching ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Search className="w-5 h-5" />
+                )}
+                Search
+              </button>
             </div>
           </div>
           
@@ -2711,17 +2825,9 @@ function ProfessionalDetailView({ pro, onClose, onNavigate }: { pro: Professiona
                         <div className="flex gap-3 items-center">
                           <img src={t.avatar} alt="" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" />
                           <div>
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onClose();
-                                onNavigate('messages');
-                              }}
-                              className="font-bold text-slate-900 hover:text-brand-blue flex items-center gap-1.5 transition-colors"
-                            >
+                            <span className="font-bold text-slate-900">
                               {t.author}
-                              <MessageCircle className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </button>
+                            </span>
                             <div className="flex items-center gap-0.5">
                               {[...Array(5)].map((_, idx) => (
                                 <Star key={idx} className={cn("w-2.5 h-2.5", idx < t.rating ? "text-amber-400 fill-amber-400" : "text-slate-200")} />
@@ -2777,18 +2883,7 @@ function ProfessionalDetailView({ pro, onClose, onNavigate }: { pro: Professiona
                   )}
                 </div>
 
-                <div className="pt-4 relative z-10">
-                  <button 
-                    onClick={() => {
-                      onClose();
-                      onNavigate('messages');
-                    }}
-                    className="w-full bg-brand-blue hover:bg-brand-blue/90 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-95 shadow-xl shadow-brand-blue/20"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    Message Now
-                  </button>
-                </div>
+
               </div>
 
               {pro.location && (
@@ -2871,6 +2966,10 @@ function EventsView() {
 
 function GuidesView() {
   const [selectedCategory, setSelectedCategory] = useState<GuideCategory | null>(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [selectedCategory]);
 
   if (selectedCategory) {
     return (
@@ -3454,6 +3553,10 @@ function MarketplaceView({ onAddAd, ads, onSelectAd }: { onAddAd: () => void, ad
 
 function ProfileView() {
   const [activeSubPage, setActiveSubPage] = useState<string | null>(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeSubPage]);
 
   const menuItems = [
     { label: 'Account Security', icon: Shield },

@@ -636,7 +636,8 @@ export default function App() {
   const [ads, setAds] = useState<Ad[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
-  const [city, setCity] = useState<string | null>(null);
+  const [city, setCity] = useState('Valencia');
+  const [showCitySelector, setShowCitySelector] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
 
   const getNearestMajorCity = async (city: string, region: string, country: string) => {
@@ -715,7 +716,8 @@ export default function App() {
   };
 
   useEffect(() => {
-    refreshLocation();
+    // City is hardcoded to Valencia for now
+    setCity('Valencia');
   }, []);
 
   // Form states for Pro
@@ -917,30 +919,94 @@ export default function App() {
       </AnimatePresence>
 
       {/* Header */}
-      <header className="bg-white px-6 py-3 flex justify-between items-center border-b border-slate-100 flex-shrink-0 z-30">
-        <div 
-          onClick={() => navigateTo('home')}
-          className="hover:opacity-80 transition-opacity cursor-pointer flex flex-col justify-center gap-1"
-        >
-          <Logo className="items-start" />
-          <div className="flex items-center gap-1.5 ml-0.5 opacity-60">
-            <div className="flex items-center justify-center w-3.5 h-3.5 bg-rose-50 rounded-full">
-              <MapPin className="w-2 h-2 text-rose-500" />
-            </div>
-            <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">{city || 'Valencia'}</span>
+      <header className="bg-white px-4 md:px-6 py-2 md:py-3 flex justify-between items-center border-b border-slate-100 flex-shrink-0 z-30">
+        <div className="flex flex-col md:flex-row items-center md:items-center gap-0.5 md:gap-6">
+          <div 
+            onClick={() => navigateTo('home')}
+            className="hover:opacity-80 transition-opacity cursor-pointer flex flex-col items-center md:items-start"
+          >
+            <Logo className="items-center md:items-start" />
+          </div>
+          
+          <div className="relative">
+            <button 
+              onClick={() => setShowCitySelector(!showCitySelector)}
+              className="flex items-center justify-center md:justify-start gap-1.5 md:gap-2 group transition-all"
+            >
+              <div className={cn(
+                "flex items-center justify-center w-3 h-3 md:w-4 md:h-4 rounded-full transition-colors",
+                showCitySelector ? "bg-rose-500 shadow-sm" : "bg-rose-50 group-hover:bg-rose-100"
+              )}>
+                <MapPin className={cn(
+                  "w-2 h-2 md:w-2.5 md:h-2.5 transition-colors",
+                  showCitySelector ? "text-white" : "text-rose-500"
+                )} />
+              </div>
+              <div className="flex flex-col items-start translate-y-[1px] md:translate-y-0">
+                <span className="text-[8px] md:text-[10px] font-black text-slate-500 uppercase tracking-[0.15em] md:tracking-[0.2em]">{city}</span>
+              </div>
+              <ChevronDown className={cn("w-2.5 h-2.5 md:w-3 md:h-3 text-slate-300 transition-transform duration-300", showCitySelector && "rotate-180")} />
+            </button>
+
+            <AnimatePresence>
+              {showCitySelector && (
+                <>
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-40" 
+                    onClick={() => setShowCitySelector(false)} 
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                    className="absolute top-full left-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden"
+                  >
+                    <div className="p-2 space-y-1">
+                      <div className="px-3 py-2 border-b border-slate-50 mb-1">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Your City</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setCity('Valencia');
+                          setShowCitySelector(false);
+                        }}
+                        className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-xl transition-colors group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <img src="/valencia.jpg" alt="Valencia" className="w-8 h-8 rounded-lg object-cover grayscale group-hover:grayscale-0 transition-all hover:scale-105" />
+                          <span className="font-semibold text-slate-700">Valencia</span>
+                        </div>
+                        <div className="w-2 h-2 bg-green-500 rounded-full ring-4 ring-green-50" />
+                      </button>
+                      
+                      <div className="mx-1 mt-2 p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                        <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
+                          We're expanding! <br/>
+                          <span className="text-brand-blue">Unlock'd</span> is coming to Madrid & Barcelona soon.
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
           </div>
         </div>
         <motion.button 
           onClick={() => setShowAddPro(true)}
           animate={{
-            scale: [1, 1.1, 1],
+            scale: [1, 1.03, 1],
           }}
           transition={{
-            duration: 2,
+            duration: 3,
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="bg-brand-yellow text-white px-4 py-2 rounded-full shadow-lg shadow-brand-yellow/20 active:scale-95 transition-all flex items-center gap-2"
+          className="bg-brand-yellow text-white px-5 py-2.5 rounded-full shadow-lg shadow-brand-yellow/30 active:scale-95 transition-all flex items-center gap-2"
         >
           <Plus className="w-5 h-5" />
           <span className="text-xs font-bold uppercase tracking-wider">Add a Pro</span>

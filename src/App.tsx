@@ -1910,6 +1910,15 @@ function HomeView({ onNavigate, onAddPro, ads, onSelectAd, onSelectPost }: { onN
         </div>
       </div>
 
+      {/* Community Image Section */}
+      <div className="w-full flex justify-center">
+        <img 
+          src="/people.jpg" 
+          alt="Our Community" 
+          className="w-full h-auto max-h-[500px] object-contain"
+        />
+      </div>
+
       {/* Hero Find Pro Section */}
       <motion.div 
         whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" }}

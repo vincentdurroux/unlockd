@@ -2146,7 +2146,6 @@ function ExpertGuideModal({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
                 <div className="relative z-10">
                   <div className="flex items-center gap-2 mb-4">
                     <ShieldCheck className="w-5 h-5 text-brand-yellow" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-yellow">Certified Partner Reference: EV-VAL-2024</span>
                   </div>
                   <h4 className="text-xl font-bold mb-4 font-display">Ready to find your home in Valencia?</h4>
                   <p className="text-slate-400 text-sm mb-6 leading-relaxed">

@@ -623,6 +623,7 @@ const MOCK_CLASSIFIEDS: Classified[] = [
 
 export default function App() {
   const [isStarting, setIsStarting] = useState(true);
+  const mainRef = useRef<HTMLElement>(null);
   const [activeView, setActiveView] = useState<View>('home');
   const [initialEventId, setInitialEventId] = useState<string | null>(null);
   const [initialProId, setInitialProId] = useState<string | null>(null);
@@ -882,6 +883,12 @@ export default function App() {
     // No longer navigating to searchResults view, MarketplaceView will handle it internally
   };
 
+  const scrollToTop = () => {
+    if (mainRef.current) {
+      mainRef.current.scrollTo(0, 0);
+    }
+  };
+
   const navigateTo = (view: View) => {
     const currentIndex = mainNavIds.indexOf(activeView);
     const newIndex = mainNavIds.indexOf(view);
@@ -920,8 +927,10 @@ export default function App() {
   };
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [activeView, selectedAd, selectedPost]);
+    if (mainRef.current) {
+      mainRef.current.scrollTo(0, 0);
+    }
+  }, [activeView, selectedAd, selectedPost, initialEventId, initialProId, initialGuideId]);
 
   return (
     <div className="flex flex-col h-screen h-[100dvh] bg-white w-full mx-auto shadow-2xl overflow-hidden relative">
@@ -1040,7 +1049,7 @@ export default function App() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto no-scrollbar relative pb-24">
+      <main ref={mainRef} className="flex-1 overflow-y-auto no-scrollbar relative pb-24">
         <motion.div
           className="min-h-full w-full"
         >
@@ -1067,6 +1076,7 @@ export default function App() {
                   ads={ads} 
                   onSelectAd={setSelectedAd} 
                   onSelectPost={(post) => { setSelectedPost(post); navigateTo('community-thread'); }}
+                  scrollToTop={scrollToTop}
                 />
               )}
               {activeView === 'explore' && (
@@ -1074,6 +1084,7 @@ export default function App() {
                   onNavigate={navigateTo} 
                   initialProId={initialProId}
                   onModalClose={() => setInitialProId(null)}
+                  scrollToTop={scrollToTop}
                 />
               )}
               {activeView === 'events' && (
@@ -1081,6 +1092,7 @@ export default function App() {
                   key="events" 
                   initialEventId={initialEventId}
                   onModalClose={() => setInitialEventId(null)}
+                  scrollToTop={scrollToTop}
                 />
               )}
               {activeView === 'guides' && (
@@ -1088,11 +1100,13 @@ export default function App() {
                   key="guides" 
                   initialGuideId={initialGuideId}
                   onModalClose={() => setInitialGuideId(null)}
+                  scrollToTop={scrollToTop}
                 />
               )}
               {activeView === 'profile' && (
                 <ProfileView 
                   key="profile" 
+                  scrollToTop={scrollToTop}
                 />
               )}
               {activeView === 'marketplace' && (
@@ -1101,10 +1115,11 @@ export default function App() {
                   onAddAd={() => setShowAddAd(true)} 
                   ads={ads} 
                   onSelectAd={setSelectedAd} 
+                  scrollToTop={scrollToTop}
                 />
               )}
               {activeView === 'messages' && (
-                <MessagesView key="messages" />
+                <MessagesView key="messages" scrollToTop={scrollToTop} />
               )}
             </motion.div>
           </AnimatePresence>
@@ -1686,6 +1701,7 @@ function AdDetailModal({ ad, onClose }: { ad: Ad | any, onClose: () => void }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      ref={scrollContainerRef}
       className="fixed inset-0 z-50 overflow-y-auto overscroll-contain touch-pan-y"
     >
       <div 
@@ -1919,7 +1935,7 @@ function AdDetailModal({ ad, onClose }: { ad: Ad | any, onClose: () => void }) {
 
 // --- Views ---
 
-function HomeView({ onNavigate, onAddPro, ads, onSelectAd, onSelectPost }: { onNavigate: (view: View, params?: { eventId?: string, proId?: string, guideId?: string }) => void, onAddPro: () => void, ads: Ad[], onSelectAd: (ad: Ad) => void, onSelectPost: (post: any) => void }) {
+function HomeView({ onNavigate, onAddPro, ads, onSelectAd, onSelectPost, scrollToTop }: { onNavigate: (view: View, params?: { eventId?: string, proId?: string, guideId?: string }) => void, onAddPro: () => void, ads: Ad[], onSelectAd: (ad: Ad) => void, onSelectPost: (post: any) => void, scrollToTop?: () => void }) {
   const feedRef = useRef<HTMLDivElement>(null);
   const [showExpertGuide, setShowExpertGuide] = useState(false);
   
@@ -2415,7 +2431,7 @@ function HighlightCarousel({ onNavigate }: { onNavigate: (view: View, params?: {
   );
 }
 
-function ExploreView({ onNavigate, initialProId, onModalClose }: { onNavigate: (view: View) => void, initialProId?: string | null, onModalClose?: () => void }) {
+function ExploreView({ onNavigate, initialProId, onModalClose, scrollToTop }: { onNavigate: (view: View) => void, initialProId?: string | null, onModalClose?: () => void, scrollToTop?: () => void }) {
   const [search, setSearch] = useState('');
   const [deferredSearch, setDeferredSearch] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -2429,6 +2445,11 @@ function ExploreView({ onNavigate, initialProId, onModalClose }: { onNavigate: (
   }, [search]);
   const [selectedGroup, setSelectedGroup] = useState('All');
   const [selectedCategory, setSelectedCategory] = useState('All');
+
+  useEffect(() => {
+    scrollToTop?.();
+  }, [selectedGroup, selectedCategory]);
+
   const [selectedLanguage, setSelectedLanguage] = useState('All');
   const [selectedPro, setSelectedPro] = useState<Professional | null>(null);
 
@@ -2880,8 +2901,12 @@ function ExploreView({ onNavigate, initialProId, onModalClose }: { onNavigate: (
   );
 }
 
-function MessagesView() {
+function MessagesView({ scrollToTop }: { scrollToTop?: () => void }) {
   const [selectedChat, setSelectedChat] = useState<any | null>(null);
+
+  useEffect(() => {
+    scrollToTop?.();
+  }, [selectedChat]);
 
   const chats = [
     { id: 1, name: 'Thomas', lastMsg: 'Thanks for the recommendation!', time: '2m ago', avatar: 'https://i.pravatar.cc/150?u=thomas', online: true },
@@ -3001,8 +3026,20 @@ function MessagesView() {
 }
 
 function ProfessionalDetailView({ pro, onClose, onNavigate }: { pro: Professional, onClose: () => void, onNavigate: (view: View) => void }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
+  }, [pro.id]);
+
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xl z-[100] overflow-y-auto overscroll-contain flex justify-center" onClick={onClose}>
+    <div 
+      ref={scrollRef}
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-xl z-[100] overflow-y-auto overscroll-contain flex justify-center" 
+      onClick={onClose}
+    >
       <div className="min-h-full w-full max-w-2xl flex items-start p-4 md:p-8">
         <motion.div 
           initial={{ scale: 0.95, opacity: 0, y: 30 }}
@@ -3159,7 +3196,7 @@ function ProfessionalDetailView({ pro, onClose, onNavigate }: { pro: Professiona
 );
 }
 
-function EventsView({ initialEventId, onModalClose }: { initialEventId?: string | null, onModalClose?: () => void }) {
+function EventsView({ initialEventId, onModalClose, scrollToTop }: { initialEventId?: string | null, onModalClose?: () => void, scrollToTop?: () => void }) {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   useEffect(() => {
@@ -3245,20 +3282,25 @@ function EventsView({ initialEventId, onModalClose }: { initialEventId?: string 
 }
 
 function EventDetailModal({ event, onClose }: { event: Event, onClose: () => void }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
+  }, [event.id]);
+
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
+    <div 
+      ref={scrollRef}
+      className="fixed inset-0 z-[200] overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 py-8 md:py-16" 
+      onClick={onClose}
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative bg-white w-full max-w-lg rounded-[32px] overflow-hidden shadow-2xl"
+        className="relative bg-white w-full max-w-lg rounded-[32px] overflow-hidden shadow-2xl my-auto"
         onClick={e => e.stopPropagation()}
       >
         <div className="h-48 relative">
@@ -3320,7 +3362,7 @@ function EventDetailModal({ event, onClose }: { event: Event, onClose: () => voi
   );
 }
 
-function GuidesView({ initialGuideId, onModalClose }: { initialGuideId?: string | null, onModalClose?: () => void }) {
+function GuidesView({ initialGuideId, onModalClose, scrollToTop }: { initialGuideId?: string | null, onModalClose?: () => void, scrollToTop?: () => void }) {
   const [selectedCategory, setSelectedCategory] = useState<GuideCategory | null>(null);
   const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
 
@@ -3337,7 +3379,7 @@ function GuidesView({ initialGuideId, onModalClose }: { initialGuideId?: string 
   }, [initialGuideId]);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollToTop?.();
   }, [selectedCategory]);
 
   if (selectedCategory) {
@@ -3460,8 +3502,12 @@ function GuidesView({ initialGuideId, onModalClose }: { initialGuideId?: string 
   );
 }
 
-function MarketplaceView({ onAddAd, ads, onSelectAd }: { onAddAd: () => void, ads: Ad[], onSelectAd: (ad: Ad) => void }) {
+function MarketplaceView({ onAddAd, ads, onSelectAd, scrollToTop }: { onAddAd: () => void, ads: Ad[], onSelectAd: (ad: Ad) => void, scrollToTop?: () => void }) {
   const [activeCategory, setActiveCategory] = useState('All');
+
+  useEffect(() => {
+    scrollToTop?.();
+  }, [activeCategory]);
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
@@ -3815,11 +3861,11 @@ function MarketplaceView({ onAddAd, ads, onSelectAd }: { onAddAd: () => void, ad
   );
 }
 
-function ProfileView() {
+function ProfileView({ scrollToTop }: { scrollToTop?: () => void }) {
   const [activeSubPage, setActiveSubPage] = useState<string | null>(null);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollToTop?.();
   }, [activeSubPage]);
 
   const menuItems = [

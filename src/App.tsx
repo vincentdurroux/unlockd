@@ -62,7 +62,11 @@ import {
   Umbrella,
   Monitor,
   Armchair,
-  Bike
+  Bike,
+  MessageSquare,
+  Globe,
+  ShieldCheck,
+  MoreHorizontal
 } from 'lucide-react';
 import { storageService } from './lib/storage';
 import { marketplaceService, Ad } from './services/marketplaceService';
@@ -620,12 +624,15 @@ const MOCK_CLASSIFIEDS: Classified[] = [
 export default function App() {
   const [isStarting, setIsStarting] = useState(true);
   const [activeView, setActiveView] = useState<View>('home');
+  const [initialEventId, setInitialEventId] = useState<string | null>(null);
+  const [initialProId, setInitialProId] = useState<string | null>(null);
+  const [initialGuideId, setInitialGuideId] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useState<{ query: string; location: string; category: string; filters?: any }>({ query: '', location: '', category: 'All' });
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsStarting(false);
-    }, 5500);
+    }, 2800);
     return () => clearTimeout(timer);
   }, []);
 
@@ -947,7 +954,7 @@ export default function App() {
                 )} />
               </div>
               <div className="flex flex-col items-start translate-y-[1px] md:translate-y-0">
-                <span className="text-[8px] md:text-[10px] font-black text-slate-500 uppercase tracking-[0.15em] md:tracking-[0.2em]">{city}</span>
+                <span className="text-[10px] font-medium text-slate-500 uppercase tracking-[0.15em] md:tracking-[0.2em]">{city}</span>
               </div>
               <ChevronDown className={cn("w-2.5 h-2.5 md:w-3 md:h-3 text-slate-300 transition-transform duration-300", showCitySelector && "rotate-180")} />
             </button>
@@ -1002,18 +1009,33 @@ export default function App() {
         </div>
         <motion.button 
           onClick={() => setShowAddPro(true)}
-          animate={{
-            scale: [1, 1.03, 1],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="bg-brand-yellow text-white px-5 py-2.5 rounded-full shadow-lg shadow-brand-yellow/30 active:scale-95 transition-all flex items-center gap-2"
+          className="relative w-12 h-12 md:w-14 md:h-14 flex items-center justify-center group flex-shrink-0 ml-2"
         >
-          <Plus className="w-5 h-5" />
-          <span className="text-xs font-bold uppercase tracking-wider">Add a Pro</span>
+          {/* Central Button */}
+          <div className="absolute inset-1.5 bg-brand-yellow rounded-full shadow-lg shadow-brand-yellow/30 flex items-center justify-center z-10 transition-all duration-300 group-hover:scale-110 group-active:scale-95">
+            <Plus className="w-5 h-5 text-white" />
+          </div>
+          
+          {/* Spinning Circular Text */}
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-0 w-full h-full"
+          >
+            <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+              <defs>
+                <path
+                  id="circlePath"
+                  d="M 50, 50 m -43, 0 a 43,43 0 1,1 86,0 a 43,43 0 1,1 -86,0"
+                />
+              </defs>
+              <text className="text-[16px] font-black fill-brand-yellow tracking-[0.15em] uppercase">
+                <textPath xlinkHref="#circlePath">
+                  Add a Pro • Add a Pro • 
+                </textPath>
+              </text>
+            </svg>
+          </motion.div>
         </motion.button>
       </header>
 
@@ -1035,7 +1057,12 @@ export default function App() {
               {activeView === 'home' && (
                 <HomeView 
                   key="home" 
-                  onNavigate={navigateTo} 
+                  onNavigate={(view, params) => {
+                    if (params?.eventId) setInitialEventId(params.eventId);
+                    if (params?.proId) setInitialProId(params.proId);
+                    if (params?.guideId) setInitialGuideId(params.guideId);
+                    navigateTo(view);
+                  }}
                   onAddPro={() => setShowAddPro(true)} 
                   ads={ads} 
                   onSelectAd={setSelectedAd} 
@@ -1043,10 +1070,26 @@ export default function App() {
                 />
               )}
               {activeView === 'explore' && (
-                <ExploreView onNavigate={navigateTo} />
+                <ExploreView 
+                  onNavigate={navigateTo} 
+                  initialProId={initialProId}
+                  onModalClose={() => setInitialProId(null)}
+                />
               )}
-              {activeView === 'events' && <EventsView key="events" />}
-              {activeView === 'guides' && <GuidesView key="guides" />}
+              {activeView === 'events' && (
+                <EventsView 
+                  key="events" 
+                  initialEventId={initialEventId}
+                  onModalClose={() => setInitialEventId(null)}
+                />
+              )}
+              {activeView === 'guides' && (
+                <GuidesView 
+                  key="guides" 
+                  initialGuideId={initialGuideId}
+                  onModalClose={() => setInitialGuideId(null)}
+                />
+              )}
               {activeView === 'profile' && (
                 <ProfileView 
                   key="profile" 
@@ -1082,126 +1125,110 @@ export default function App() {
                   initial={{ scale: 0.9, opacity: 0, y: 20 }}
                   animate={{ scale: 1, opacity: 1, y: 0 }}
                   exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                  className="bg-white w-full max-w-lg rounded-[40px] overflow-hidden relative shadow-2xl flex flex-col my-auto"
+                  className="bg-white w-full max-w-lg rounded-[32px] overflow-hidden relative shadow-2xl flex flex-col my-auto border border-slate-100"
                   onClick={e => e.stopPropagation()}
                 >
                 {/* Modal Header */}
-                <div className="bg-gradient-to-br from-brand-blue/10 to-brand-yellow/10 px-8 pt-12 pb-6 flex flex-col items-center text-center relative overflow-hidden">
-                  <div className="absolute -right-10 -top-10 w-40 h-40 bg-brand-blue/5 rounded-full blur-3xl" />
-                  <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-brand-blue/5 rounded-full blur-3xl" />
+                <div className="px-8 pt-10 pb-4 flex flex-col items-center text-center relative">
+                  <div className="w-12 h-12 bg-brand-yellow/10 flex items-center justify-center rounded-full mb-4">
+                    <Plus className="w-6 h-6 text-brand-yellow" />
+                  </div>
                   
-                  <h2 className="text-2xl font-bold font-display text-brand-navy relative z-10">
+                  <h2 className="text-2xl font-bold font-display text-brand-navy tracking-tight">
                     Recommend a Pro
                   </h2>
+                  <p className="text-slate-500 font-medium text-sm mt-1">Share a great service with the community</p>
                   
                   <button 
                     onClick={() => setShowAddPro(false)}
-                    className="absolute top-6 right-6 p-2 bg-white/80 backdrop-blur-sm rounded-full text-slate-400 hover:text-slate-600 hover:bg-white transition-all shadow-sm"
+                    className="absolute top-6 right-6 p-2 text-slate-300 hover:text-slate-500 hover:bg-slate-50 rounded-full transition-all active:scale-95"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <div className="p-8 pt-6 space-y-6">
+                <div className="p-8 pt-4 space-y-6">
                   <div className="space-y-5">
                     {/* Basic Info Section */}
-                    <div className="space-y-4">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Professional Details</p>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 px-1">
+                        <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Professional Identity</p>
+                      </div>
                       
-                      <div className="space-y-3">
-                        <div className="relative group">
-                          <div className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-blue transition-colors">
-                            <User className="w-full h-full" />
-                          </div>
-                          <input 
-                            type="text" 
-                            placeholder="Full Name" 
-                            value={proName}
-                            onChange={(e) => setProName(e.target.value)}
-                            className="w-full pl-12 pr-4 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:border-brand-blue/30 focus:bg-white focus:ring-4 focus:ring-brand-blue/5 outline-none text-sm font-semibold transition-all" 
-                          />
-                        </div>
-                        
-                        <div className="relative group">
-                          <div className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-blue transition-colors">
-                            <Briefcase className="w-full h-full" />
-                          </div>
-                          <input 
-                            type="text" 
-                            placeholder="Category (e.g. Plumber, Lawyer...)" 
-                            value={proCategory}
-                            onChange={(e) => setProCategory(e.target.value)}
-                            className="w-full pl-12 pr-4 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:border-brand-blue/30 focus:bg-white focus:ring-4 focus:ring-brand-blue/5 outline-none text-sm font-semibold transition-all" 
-                          />
-                        </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <input 
+                          type="text" 
+                          placeholder="Full Name" 
+                          value={proName}
+                          onChange={(e) => setProName(e.target.value)}
+                          className="w-full px-4 py-3.5 bg-slate-50/50 rounded-xl border border-slate-100 focus:border-brand-yellow/30 focus:bg-white focus:ring-4 focus:ring-brand-yellow/5 outline-none text-sm font-semibold transition-all placeholder:text-slate-300" 
+                        />
+                        <input 
+                          type="text" 
+                          placeholder="Category" 
+                          value={proCategory}
+                          onChange={(e) => setProCategory(e.target.value)}
+                          className="w-full px-4 py-3.5 bg-slate-50/50 rounded-xl border border-slate-100 focus:border-brand-yellow/30 focus:bg-white focus:ring-4 focus:ring-brand-yellow/5 outline-none text-sm font-semibold transition-all placeholder:text-slate-300" 
+                        />
                       </div>
                     </div>
 
                     {/* Contact Info Section */}
-                    <div className="space-y-4">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Contact Information (One required)</p>
-                      <div className="grid grid-cols-1 gap-3">
-                        <div className="relative group">
-                          <div className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-blue transition-colors">
-                            <Mail className="w-full h-full" />
-                          </div>
-                          <input 
-                            type="email" 
-                            placeholder="Email Address" 
-                            value={proEmail}
-                            onChange={(e) => setProEmail(e.target.value)}
-                            className="w-full pl-12 pr-4 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:border-brand-blue/30 focus:bg-white focus:ring-4 focus:ring-brand-blue/5 outline-none text-sm font-semibold transition-all" 
-                          />
-                        </div>
-                        <div className="relative group">
-                          <div className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-blue transition-colors">
-                            <Phone className="w-full h-full" />
-                          </div>
-                          <input 
-                            type="tel" 
-                            placeholder="Phone Number" 
-                            value={proPhone}
-                            onChange={(e) => setProPhone(e.target.value)}
-                            className="w-full pl-12 pr-4 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:border-brand-blue/30 focus:bg-white focus:ring-4 focus:ring-brand-blue/5 outline-none text-sm font-semibold transition-all" 
-                          />
-                        </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 px-1">
+                        <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Contact Details</p>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <input 
+                          type="email" 
+                          placeholder="Email (Optional)" 
+                          value={proEmail}
+                          onChange={(e) => setProEmail(e.target.value)}
+                          className="w-full px-4 py-3.5 bg-slate-50/50 rounded-xl border border-slate-100 focus:border-brand-yellow/30 focus:bg-white focus:ring-4 focus:ring-brand-yellow/5 outline-none text-sm font-semibold transition-all placeholder:text-slate-300" 
+                        />
+                        <input 
+                          type="tel" 
+                          placeholder="Phone (Optional)" 
+                          value={proPhone}
+                          onChange={(e) => setProPhone(e.target.value)}
+                          className="w-full px-4 py-3.5 bg-slate-50/50 rounded-xl border border-slate-100 focus:border-brand-yellow/30 focus:bg-white focus:ring-4 focus:ring-brand-yellow/5 outline-none text-sm font-semibold transition-all placeholder:text-slate-300" 
+                        />
                       </div>
                     </div>
 
                     {/* Recommendation Section */}
-                    <div className="space-y-4">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Your Recommendation</p>
-                      <div className="relative group">
-                        <textarea 
-                          placeholder="Why do you recommend them? What services did they provide?" 
-                          value={proRecommendation}
-                          onChange={(e) => setProRecommendation(e.target.value)}
-                          className="w-full p-5 bg-slate-50 rounded-3xl border border-slate-100 focus:border-brand-blue/30 focus:bg-white focus:ring-4 focus:ring-brand-blue/5 outline-none h-36 text-sm font-medium resize-none transition-all leading-relaxed" 
-                        />
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 px-1">
+                        <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Your Recommendation</p>
                       </div>
+                      <textarea 
+                        placeholder="Why do you recommend them?" 
+                        value={proRecommendation}
+                        onChange={(e) => setProRecommendation(e.target.value)}
+                        className="w-full p-4 bg-slate-50/50 rounded-2xl border border-slate-100 focus:border-brand-yellow/30 focus:bg-white focus:ring-4 focus:ring-brand-yellow/5 outline-none h-28 text-sm font-medium resize-none transition-all leading-relaxed placeholder:text-slate-300" 
+                      />
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-3 pt-2 pb-2">
+                  <div className="flex flex-col gap-3 pt-2">
                     <button 
-                      className="w-full py-4 bg-brand-blue text-white text-sm font-bold rounded-2xl shadow-xl shadow-brand-blue/20 hover:shadow-brand-blue/30 active:scale-[0.98] transition-all disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2" 
+                      className="w-full py-4 bg-brand-yellow text-white text-sm font-bold rounded-2xl shadow-lg shadow-brand-yellow/20 hover:shadow-brand-yellow/30 active:scale-[0.98] transition-all disabled:opacity-40 disabled:grayscale disabled:shadow-none uppercase tracking-widest" 
                       onClick={handlePostPro}
                       disabled={!proName || !proCategory || (!proEmail.trim() && !proPhone.trim())}
                     >
-                      <CheckCircle2 className="w-5 h-5" />
                       Post Recommendation
                     </button>
                     <button 
                       onClick={() => setShowAddPro(false)}
-                      className="w-full py-4 text-sm font-bold text-slate-500 bg-slate-100 rounded-2xl hover:bg-slate-200 transition-all active:scale-[0.98] flex items-center justify-center"
+                      className="w-full py-2 text-xs font-bold text-slate-400 hover:text-slate-500 transition-all uppercase tracking-widest"
                     >
                       Cancel
                     </button>
                   </div>
                   
-                  <div className="flex items-center justify-center gap-2 text-[10px] text-slate-400 font-medium">
+                  <div className="pt-4 flex items-center justify-center gap-2 text-[9px] text-slate-300 font-bold uppercase tracking-[0.2em] border-t border-slate-50">
                     <Shield className="w-3 h-3" />
-                    Your recommendation will be reviewed by our team
+                    Verified Community Content
                   </div>
                 </div>
               </motion.div>
@@ -1892,7 +1919,7 @@ function AdDetailModal({ ad, onClose }: { ad: Ad | any, onClose: () => void }) {
 
 // --- Views ---
 
-function HomeView({ onNavigate, onAddPro, ads, onSelectAd, onSelectPost }: { onNavigate: (view: View) => void, onAddPro: () => void, ads: Ad[], onSelectAd: (ad: Ad) => void, onSelectPost: (post: any) => void }) {
+function HomeView({ onNavigate, onAddPro, ads, onSelectAd, onSelectPost }: { onNavigate: (view: View, params?: { eventId?: string, proId?: string, guideId?: string }) => void, onAddPro: () => void, ads: Ad[], onSelectAd: (ad: Ad) => void, onSelectPost: (post: any) => void }) {
   const feedRef = useRef<HTMLDivElement>(null);
   
   return (
@@ -1900,22 +1927,22 @@ function HomeView({ onNavigate, onAddPro, ads, onSelectAd, onSelectPost }: { onN
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="p-6 space-y-8 max-w-7xl mx-auto w-full"
+      className="px-6 pt-12 pb-6 space-y-12 max-w-7xl mx-auto w-full"
     >
       {/* Welcome Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 text-center md:text-left">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 text-center md:text-left mb-12">
         <div className="space-y-1 flex flex-col items-center md:items-start">
-          <h2 className="text-3xl md:text-4xl font-bold font-display text-brand-navy">Hola, Vincent! 👋</h2>
-          <p className="text-slate-500 text-lg">Welcome back to your local community.</p>
+          <h2 className="text-[22px] font-bold font-display text-brand-navy">Hola, Vincent! 👋</h2>
+          <p className="text-slate-500 text-sm">Welcome back to your local community.</p>
         </div>
       </div>
 
       {/* Community Image Section */}
-      <div className="w-full flex justify-center">
+      <div className="w-full flex justify-center -mb-2 relative z-0">
         <img 
           src="/people.jpg" 
           alt="Our Community" 
-          className="w-full h-auto max-h-[500px] object-contain"
+          className="w-[70%] md:w-1/2 h-auto max-h-[200px] md:max-h-[400px] object-contain block"
         />
       </div>
 
@@ -1934,7 +1961,7 @@ function HomeView({ onNavigate, onAddPro, ads, onSelectAd, onSelectPost }: { onN
               Find recommended <span className="text-brand-blue italic">Pros</span> near you.
             </h1>
             <p className="text-slate-500 text-base md:text-xl max-w-md leading-relaxed">
-              Connect with verified experts recommended by the community.
+              Connect with experts recommended by the community.
             </p>
             
             <div 
@@ -1987,16 +2014,9 @@ function HomeView({ onNavigate, onAddPro, ads, onSelectAd, onSelectPost }: { onN
   );
 }
 
-function HighlightCarousel({ onNavigate }: { onNavigate: (view: View) => void }) {
+function HighlightCarousel({ onNavigate }: { onNavigate: (view: View, params?: { eventId?: string, proId?: string, guideId?: string }) => void }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const totalSlides = 3;
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % totalSlides);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
 
   const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % totalSlides);
   const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
@@ -2004,25 +2024,27 @@ function HighlightCarousel({ onNavigate }: { onNavigate: (view: View) => void })
   const slides = [
     {
       type: 'event',
+      id: '1',
       title: 'Valencia Expat Connect',
       location: 'Marina Beach Club',
       tag: 'EVENT',
       image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=600',
       date: { day: 'FRI', num: '24' },
-      action: () => onNavigate('events')
+      action: () => onNavigate('events', { eventId: '1' })
     },
     {
       type: 'pro',
       pro: MOCK_PROS[1],
-      action: () => onNavigate('explore')
+      action: () => onNavigate('explore', { proId: MOCK_PROS[1].id })
     },
     {
       type: 'tip',
-      title: 'Getting your NIE in 3 simple steps',
+      id: 'pw-1',
+      title: 'The Ultimate NIE Guide 2024',
       excerpt: 'Avoid the administrative headache with our updated 2024 guide for Valencia residents.',
       tag: 'TIPS',
       readTime: '4 min read',
-      action: () => onNavigate('guides')
+      action: () => onNavigate('guides', { guideId: 'pw-1' })
     }
   ];
 
@@ -2148,7 +2170,7 @@ function HighlightCarousel({ onNavigate }: { onNavigate: (view: View) => void })
   );
 }
 
-function ExploreView({ onNavigate }: { onNavigate: (view: View) => void }) {
+function ExploreView({ onNavigate, initialProId, onModalClose }: { onNavigate: (view: View) => void, initialProId?: string | null, onModalClose?: () => void }) {
   const [search, setSearch] = useState('');
   const [deferredSearch, setDeferredSearch] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -2164,6 +2186,15 @@ function ExploreView({ onNavigate }: { onNavigate: (view: View) => void }) {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedLanguage, setSelectedLanguage] = useState('All');
   const [selectedPro, setSelectedPro] = useState<Professional | null>(null);
+
+  useEffect(() => {
+    if (initialProId) {
+      const pro = MOCK_PROS.find(p => p.id === initialProId);
+      if (pro) {
+        setSelectedPro(pro);
+      }
+    }
+  }, [initialProId]);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [maxDistance, setMaxDistance] = useState<number | 'All'>('All');
 
@@ -2269,13 +2300,6 @@ function ExploreView({ onNavigate }: { onNavigate: (view: View) => void }) {
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/10 blur-[120px] rounded-full -ml-48 -mb-48" />
         
         <div className="relative z-10 max-w-3xl space-y-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-xs font-bold uppercase tracking-widest text-brand-blue"
-          >
-            <CheckCircle2 className="w-3 h-3" /> Community Verified
-          </motion.div>
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -2387,13 +2411,7 @@ function ExploreView({ onNavigate }: { onNavigate: (view: View) => void }) {
           </div>
           
           <div className="lg:col-span-5 flex items-center justify-end px-2 pb-2">
-            <button 
-              onClick={() => { setSearch(''); setSelectedGroup('All'); setSelectedCategory('All'); setSelectedLanguage('All'); setMaxDistance('All'); }}
-              className="group flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase tracking-widest"
-            >
-              <RotateCcw className="w-3.5 h-3.5 group-hover:rotate-[-45deg] transition-transform" />
-              Reset
-            </button>
+            {/* Reset button removed per user request */}
           </div>
         </div>
 
@@ -2563,11 +2581,6 @@ function ExploreView({ onNavigate }: { onNavigate: (view: View) => void }) {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <h4 className="font-bold text-slate-900 text-2xl truncate group-hover:text-brand-blue transition-colors tracking-tight">{pro.name}</h4>
-                        {pro.verified && (
-                          <div className="flex items-center justify-center w-5 h-5 bg-brand-blue rounded-full shadow-lg shadow-brand-blue/20">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                          </div>
-                        )}
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="text-[10px] font-black px-2.5 py-1 bg-brand-blue/10 text-brand-blue rounded-lg uppercase tracking-[0.1em]">{pro.category}</span>
@@ -2623,7 +2636,10 @@ function ExploreView({ onNavigate }: { onNavigate: (view: View) => void }) {
         {selectedPro && (
           <ProfessionalDetailView 
             pro={selectedPro} 
-            onClose={() => setSelectedPro(null)} 
+            onClose={() => {
+              setSelectedPro(null);
+              onModalClose?.();
+            }} 
             onNavigate={onNavigate}
           />
         )}
@@ -2781,12 +2797,6 @@ function ProfessionalDetailView({ pro, onClose, onNavigate }: { pro: Professiona
             <div className="flex-1 space-y-3 pb-2">
               <div className="flex flex-wrap items-center gap-3">
                 <h3 className="text-3xl md:text-4xl font-black text-slate-900 font-display tracking-tight leading-none">{pro.name}</h3>
-                {pro.verified && (
-                  <div className="flex items-center gap-1 px-2.5 py-1 bg-brand-blue text-white rounded-full shadow-lg shadow-brand-blue/20">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider">Verified</span>
-                  </div>
-                )}
               </div>
               <div className="flex flex-wrap items-center gap-3 text-sm">
                 <div className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-blue/5 text-brand-blue rounded-xl font-bold border border-brand-blue/10">
@@ -2834,9 +2844,17 @@ function ProfessionalDetailView({ pro, onClose, onNavigate }: { pro: Professiona
                         <div className="flex gap-3 items-center">
                           <img src={t.avatar} alt="" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" />
                           <div>
-                            <span className="font-bold text-slate-900">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onClose();
+                                onNavigate('messages');
+                              }}
+                              className="font-bold text-slate-900 hover:text-brand-blue flex items-center gap-1.5 transition-colors"
+                            >
                               {t.author}
-                            </span>
+                              <MessageCircle className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </button>
                             <div className="flex items-center gap-0.5">
                               {[...Array(5)].map((_, idx) => (
                                 <Star key={idx} className={cn("w-2.5 h-2.5", idx < t.rating ? "text-amber-400 fill-amber-400" : "text-slate-200")} />
@@ -2884,12 +2902,6 @@ function ProfessionalDetailView({ pro, onClose, onNavigate }: { pro: Professiona
                       ))}
                     </div>
                   </div>
-                  {pro.experience && (
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Experience</p>
-                      <p className="font-bold text-sm">{pro.experience}</p>
-                    </div>
-                  )}
                 </div>
 
 
@@ -2915,7 +2927,18 @@ function ProfessionalDetailView({ pro, onClose, onNavigate }: { pro: Professiona
 );
 }
 
-function EventsView() {
+function EventsView({ initialEventId, onModalClose }: { initialEventId?: string | null, onModalClose?: () => void }) {
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+
+  useEffect(() => {
+    if (initialEventId) {
+      const event = MOCK_EVENTS.find(e => e.id === initialEventId);
+      if (event) {
+        setSelectedEvent(event);
+      }
+    }
+  }, [initialEventId]);
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -2930,7 +2953,11 @@ function EventsView() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto w-full">
         {MOCK_EVENTS.map(event => (
-          <div key={event.id} className="card bg-white group hover-lift cursor-pointer">
+          <div 
+            key={event.id} 
+            className="card bg-white group hover-lift cursor-pointer"
+            onClick={() => setSelectedEvent(event)}
+          >
             <div className="h-40 overflow-hidden relative">
               <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-lg text-center">
@@ -2969,12 +2996,113 @@ function EventsView() {
           </div>
         ))}
       </div>
+
+      <AnimatePresence>
+        {selectedEvent && (
+          <EventDetailModal 
+            event={selectedEvent} 
+            onClose={() => {
+              setSelectedEvent(null);
+              onModalClose?.();
+            }} 
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
 
-function GuidesView() {
+function EventDetailModal({ event, onClose }: { event: Event, onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="relative bg-white w-full max-w-lg rounded-[32px] overflow-hidden shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="h-48 relative">
+          <img src={event.image} alt="" className="w-full h-full object-cover" />
+          <button 
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded-full text-white transition-all"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="p-8 space-y-6">
+          <div className="space-y-2">
+            <div className="flex justify-between items-start">
+              <h2 className="text-2xl font-bold text-slate-900">{event.title}</h2>
+              <span className="px-3 py-1 bg-brand-blue/10 text-brand-blue rounded-full text-[10px] font-bold uppercase tracking-wider">
+                {event.category}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-4 text-sm text-slate-500">
+              <div className="flex items-center gap-1.5 font-medium">
+                <Calendar className="w-4 h-4 text-brand-blue" />
+                {event.date}
+              </div>
+              <div className="flex items-center gap-1.5 font-medium">
+                <Clock className="w-4 h-4 text-brand-blue" />
+                {event.time}
+              </div>
+              <div className="flex items-center gap-1.5 font-medium">
+                <MapPin className="w-4 h-4 text-brand-blue" />
+                {event.location}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-bold text-slate-900">About this event</h3>
+            <p className="text-slate-600 leading-relaxed text-sm">
+              Join our community meetup at {event.location}! This is a great opportunity to meet new people, share experiences, and enjoy the local atmosphere. Whether you're new to the city or a long-time resident, everyone is welcome.
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+            <div className="flex -space-x-2">
+              {[1,2,3,4].map(i => (
+                <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200" />
+              ))}
+              <div className="w-8 h-8 rounded-full border-2 border-white bg-brand-blue/10 flex items-center justify-center text-[10px] font-bold text-brand-blue">
+                +{event.attendees - 4}
+              </div>
+            </div>
+            <button className="px-8 py-3 bg-brand-blue text-white rounded-xl font-bold text-sm shadow-lg shadow-brand-blue/20 active:scale-95 transition-all">
+              Attend Event
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function GuidesView({ initialGuideId, onModalClose }: { initialGuideId?: string | null, onModalClose?: () => void }) {
   const [selectedCategory, setSelectedCategory] = useState<GuideCategory | null>(null);
+  const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialGuideId) {
+      const category = MOCK_GUIDE_CATEGORIES.find(cat => 
+        cat.articles.some(art => art.id === initialGuideId)
+      );
+      if (category) {
+        setSelectedCategory(category);
+        setSelectedArticleId(initialGuideId);
+      }
+    }
+  }, [initialGuideId]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -2989,7 +3117,11 @@ function GuidesView() {
         className="p-6 space-y-8 pb-24"
       >
         <button 
-          onClick={() => setSelectedCategory(null)}
+          onClick={() => {
+            setSelectedCategory(null);
+            setSelectedArticleId(null);
+            onModalClose?.();
+          }}
           className="flex items-center gap-2 text-slate-500 font-bold hover:text-brand-blue transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -3010,7 +3142,15 @@ function GuidesView() {
           <h3 className="text-xl font-bold text-slate-900">Publications</h3>
           <div className="grid grid-cols-1 gap-4">
             {selectedCategory.articles.map(article => (
-              <div key={article.id} className="card bg-white p-6 space-y-3 hover-lift group cursor-pointer">
+              <div 
+                key={article.id} 
+                className={cn(
+                  "card p-6 space-y-3 hover-lift group cursor-pointer transition-all border-2",
+                  selectedArticleId === article.id 
+                    ? "bg-brand-blue/5 border-brand-blue ring-4 ring-brand-blue/5 shadow-xl scale-[1.02]" 
+                    : "bg-white border-transparent"
+                )}
+              >
                 <div className="flex justify-between items-start">
                   {article.tag && (
                     <span className="px-2 py-1 rounded-md bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
@@ -3889,12 +4029,12 @@ function SplashScreen() {
       <motion.div 
         className="absolute inset-y-0 left-0 w-1/2 bg-white z-0"
         initial={{ x: 0 }}
-        exit={{ x: '-100%', transition: { duration: 1.2, ease: [0.7, 0, 0.3, 1] } }}
+        exit={{ x: '-100%', transition: { duration: 0.8, ease: [0.7, 0, 0.3, 1] } }}
       />
       <motion.div 
         className="absolute inset-y-0 right-0 w-1/2 bg-white z-0"
         initial={{ x: 0 }}
-        exit={{ x: '100%', transition: { duration: 1.2, ease: [0.7, 0, 0.3, 1] } }}
+        exit={{ x: '100%', transition: { duration: 0.8, ease: [0.7, 0, 0.3, 1] } }}
       />
 
       <motion.div 
@@ -3902,16 +4042,16 @@ function SplashScreen() {
         initial={{ opacity: 1 }}
         exit={{ 
           opacity: 0, 
-          scale: 1.2,
-          filter: "blur(20px)",
-          transition: { duration: 0.8, ease: "easeIn" } 
+          scale: 1.1,
+          filter: "blur(10px)",
+          transition: { duration: 0.5, ease: "easeIn" } 
         }}
       >
         <div className="relative flex items-center justify-center h-48 mb-12">
           <motion.img
             src="/logo.png"
             alt="Unlock'd Logo"
-            initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+            initial={{ opacity: 0, scale: 0.8, filter: "blur(5px)" }}
             animate={{ 
               opacity: 1, 
               scale: 1, 
@@ -3919,10 +4059,10 @@ function SplashScreen() {
               rotate: [0, -5, 5, -5, 5, 0], // Shake animation
             }}
             transition={{ 
-              opacity: { duration: 2.5, delay: 0.5 },
-              scale: { duration: 2.5, delay: 0.5 },
-              filter: { duration: 2.5, delay: 0.5 },
-              rotate: { delay: 4, duration: 0.4, ease: "easeInOut" } // Key turn shake
+              opacity: { duration: 1.2, delay: 0.2 },
+              scale: { duration: 1.2, delay: 0.2 },
+              filter: { duration: 1.2, delay: 0.2 },
+              rotate: { delay: 1.8, duration: 0.4, ease: "easeInOut" } // Key turn shake
             }}
             className="h-32 md:h-40 w-auto object-contain"
             referrerPolicy="no-referrer"
@@ -3933,7 +4073,7 @@ function SplashScreen() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.5, delay: 2.8 }}
+          transition={{ duration: 0.8, delay: 1.4 }}
           className="flex flex-col items-center"
         >
           <p className="text-xs md:text-sm font-medium text-slate-500 whitespace-nowrap px-4 text-center">
@@ -3944,12 +4084,12 @@ function SplashScreen() {
           <motion.div
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: "140px", opacity: 1 }}
-            transition={{ delay: 3.5, duration: 3, ease: "easeInOut" }}
+            transition={{ delay: 1.8, duration: 1.2, ease: "easeInOut" }}
             className="h-[3px] bg-brand-blue/10 mt-8 rounded-full overflow-hidden relative"
           >
             <motion.div
               animate={{ x: ["-100%", "100%"] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
               className="absolute inset-0 bg-brand-blue"
             />
           </motion.div>
@@ -3961,7 +4101,7 @@ function SplashScreen() {
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 0.03 }}
         exit={{ opacity: 0, transition: { duration: 0.3 } }}
-        transition={{ duration: 2, delay: 0.5 }}
+        transition={{ duration: 1, delay: 0.2 }}
         className="absolute inset-0 bg-brand-blue rounded-full blur-[100px] pointer-events-none"
       />
     </motion.div>

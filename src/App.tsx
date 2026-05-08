@@ -1921,6 +1921,7 @@ function AdDetailModal({ ad, onClose }: { ad: Ad | any, onClose: () => void }) {
 
 function HomeView({ onNavigate, onAddPro, ads, onSelectAd, onSelectPost }: { onNavigate: (view: View, params?: { eventId?: string, proId?: string, guideId?: string }) => void, onAddPro: () => void, ads: Ad[], onSelectAd: (ad: Ad) => void, onSelectPost: (post: any) => void }) {
   const feedRef = useRef<HTMLDivElement>(null);
+  const [showExpertGuide, setShowExpertGuide] = useState(false);
   
   return (
     <motion.div 
@@ -2009,8 +2010,252 @@ function HomeView({ onNavigate, onAddPro, ads, onSelectAd, onSelectPost }: { onN
             <HighlightCarousel onNavigate={onNavigate} />
           </div>
         </div>
+
+        {/* Expert Guides & Partners Section */}
+        <ExpertGuidesPartners onReadFullGuide={() => setShowExpertGuide(true)} />
+
+        {/* Expert Guide Modal */}
+        <ExpertGuideModal 
+          isOpen={showExpertGuide} 
+          onClose={() => setShowExpertGuide(false)} 
+        />
       </div>
     </motion.div>
+  );
+}
+
+function ExpertGuideModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
+  if (!isOpen) return null;
+
+  return (
+    <AnimatePresence>
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 lg:p-8">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="absolute inset-0 bg-brand-navy/60 backdrop-blur-md"
+        />
+        
+        <motion.div 
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.9, opacity: 0, y: 20 }}
+          className="bg-white w-full max-w-4xl h-[90vh] md:h-auto md:max-h-[85vh] rounded-[32px] md:rounded-[40px] shadow-2xl relative flex flex-col overflow-hidden"
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Header Image */}
+          <div className="h-48 md:h-64 relative flex-shrink-0">
+            <img src="/valencia.jpg" alt="Valencia" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+            
+            <button 
+              onClick={onClose}
+              className="absolute top-6 right-6 p-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all shadow-lg active:scale-95 z-20"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="absolute bottom-6 left-8 right-8">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="px-3 py-1 bg-brand-yellow text-white text-[10px] font-black uppercase tracking-widest rounded-full">Exclusive Guide</span>
+                <span className="text-white/60 text-xs font-bold">• 8 min read</span>
+              </div>
+              <h2 className="text-2xl md:text-4xl font-black text-white font-display leading-tight">
+                Choosing the perfect neighborhood in Valencia
+              </h2>
+            </div>
+          </div>
+
+          {/* Scrollable Content */}
+          <div className="flex-grow overflow-y-auto p-8 md:p-12">
+            <div className="max-w-2xl mx-auto space-y-10">
+              {/* Partner Intro */}
+              <div className="flex items-center gap-4 py-6 border-b border-slate-100 mb-8">
+                <img src="https://i.pravatar.cc/150?u=marina" alt="Marina" className="w-12 h-12 rounded-full border-2 border-brand-yellow/20" />
+                <div>
+                  <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Article by Marina Sanchis</p>
+                  <p className="text-sm font-bold text-slate-800">Engel & Völkers Valencia Real Estate Specialist</p>
+                </div>
+              </div>
+
+              {/* Guide Content */}
+              <div className="space-y-6 text-slate-600 leading-relaxed text-base md:text-lg">
+                <p className="font-bold text-slate-900 border-l-4 border-brand-yellow pl-4 italic">
+                  "Valencia is no longer Spain’s best-kept secret. As more expats move here, choosing the right neighborhood is the most critical decision for your quality of life."
+                </p>
+
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold text-brand-navy flex items-center gap-2">
+                    <div className="w-2 h-2 bg-brand-yellow rounded-full" />
+                    Ruzafa: The Bohemian Heart
+                  </h3>
+                  <p>
+                    Known as the Soho of Valencia, Ruzafa is perfect for young professionals and digital nomads. It's vibrant, filled with art galleries, vintage shops, and the city's best coffee scene. However, be prepared for noise on weekends.
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold text-brand-navy flex items-center gap-2">
+                    <div className="w-2 h-2 bg-brand-yellow rounded-full" />
+                    Cabañal: Living by the Mediterranean
+                  </h3>
+                  <p>
+                    The old fisherman’s quarter is undergoing a massive transformation. It offers a unique architectural style and proximity to the Malvarrosa beach. Perfect for those who want a maritime vibe while remaining 15 minutes from the center.
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold text-brand-navy flex items-center gap-2">
+                    <div className="w-2 h-2 bg-brand-yellow rounded-full" />
+                    Ciutat Vella: History at your Doorstep
+                  </h3>
+                  <p>
+                    Living in the old town means being surrounded by centuries of history. It's walkable, charming, but can feel touristy in peak seasons. Ideal for those who love the 'Old Europe' atmosphere.
+                  </p>
+                </div>
+
+                <div className="bg-brand-blue/5 rounded-3xl p-6 md:p-8 space-y-4 border border-brand-blue/10 mt-8" id="expert-tip-box">
+                  <h4 className="text-brand-navy font-black text-sm uppercase tracking-widest">Expert Market Tip for 2024</h4>
+                  <p className="text-brand-navy/80 text-sm md:text-base leading-relaxed">
+                    Property values in areas adjacent to the Turia Park, like Campanar and Algiros, are seeing the highest appreciation due to the 'Green Corridor' effect. Families should focus their search here for long-term stability.
+                  </p>
+                </div>
+              </div>
+
+              {/* Call to Action Section */}
+              <div className="mt-12 p-8 bg-slate-900 rounded-[32px] text-white relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-yellow/10 rounded-full blur-3xl group-hover:bg-brand-yellow/20 transition-all duration-500" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-2 mb-4">
+                    <ShieldCheck className="w-5 h-5 text-brand-yellow" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-yellow">Certified Partner Reference: EV-VAL-2024</span>
+                  </div>
+                  <h4 className="text-xl font-bold mb-4 font-display">Ready to find your home in Valencia?</h4>
+                  <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+                    Connect with Marina Sanchis directly for a private consultation and access to our off-market portfolio.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <a href="tel:+34963510200" className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all group/call">
+                      <div className="w-10 h-10 rounded-xl bg-brand-yellow/20 flex items-center justify-center text-brand-yellow group-hover/call:scale-110 transition-transform">
+                        <Phone className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Call Marina</p>
+                        <p className="text-sm font-bold">+34 963 51 02 00</p>
+                      </div>
+                    </a>
+                    <a href="mailto:valencia@engelvoelkers.com" className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all group/mail">
+                      <div className="w-10 h-10 rounded-xl bg-brand-blue/20 flex items-center justify-center text-brand-blue group-hover/mail:scale-110 transition-transform">
+                        <Mail className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Email Office</p>
+                        <p className="text-sm font-bold">valencia@ev.com</p>
+                      </div>
+                    </a>
+                  </div>
+
+                  <button className="w-full py-4 bg-brand-yellow text-slate-900 font-black text-sm uppercase tracking-widest rounded-2xl shadow-xl shadow-brand-yellow/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    Visit Website
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </AnimatePresence>
+  );
+}
+
+function ExpertGuidesPartners({ onReadFullGuide }: { onReadFullGuide: () => void }) {
+  const featuredGuide = {
+    title: "How to choose the best neighborhood in Valencia",
+    partner: "Engel & Völkers Valencia",
+    author: "Marina Sanchis",
+    avatar: "https://i.pravatar.cc/150?u=marina",
+    excerpt: "From the bohemian streets of Ruzafa to the family-friendly avenues of Algiros, every district tells a different story. Discover which one matches your lifestyle and investment goals.",
+    brandImage: "/valencia.jpg",
+    ref: "EV-VAL-2024",
+    contact: {
+      phone: "+34 963 51 02 00",
+      email: "valencia@engelvoelkers.com"
+    }
+  };
+
+  return (
+    <div className="space-y-4 pt-4">
+      <div className="flex justify-between items-center">
+        <h3 className="font-bold text-lg font-display text-brand-navy flex items-center gap-2">
+          <Globe className="w-5 h-5 text-brand-yellow" />
+          Partner Expert Guides
+        </h3>
+      </div>
+      
+      <div className="bg-white border border-slate-100 rounded-[32px] overflow-hidden shadow-sm hover:shadow-md transition-all group">
+        <div className="flex flex-col md:flex-row">
+          {/* Visual Side */}
+          <div className="md:w-1/3 h-48 md:h-auto relative overflow-hidden">
+            <img src={featuredGuide.brandImage} alt="Valencia neighborhoods" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent md:bg-gradient-to-r" />
+            <div className="absolute top-4 left-4 bg-brand-yellow text-white text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md shadow-lg">
+              Featured Expert
+            </div>
+          </div>
+
+          {/* Content Side */}
+          <div className="md:w-2/3 p-6 md:p-8 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-brand-yellow/20">
+                  <img src={featuredGuide.avatar} alt={featuredGuide.author} className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-800 text-sm leading-none">{featuredGuide.partner}</h4>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">By {featuredGuide.author}</p>
+                </div>
+              </div>
+              
+              <h2 className="text-xl md:text-2xl font-black font-display text-brand-navy mb-3 group-hover:text-brand-blue transition-colors leading-tight">
+                {featuredGuide.title}
+              </h2>
+              <p className="text-sm text-slate-600 leading-relaxed line-clamp-2 md:line-clamp-none">
+                {featuredGuide.excerpt}
+              </p>
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="space-y-2">
+                <p className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em]">Contact Expert</p>
+                <div className="flex flex-wrap gap-x-4 gap-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
+                    <Phone className="w-3.5 h-3.5 text-brand-yellow" />
+                    {featuredGuide.contact.phone}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
+                    <Mail className="w-3.5 h-3.5 text-brand-yellow" />
+                    {featuredGuide.contact.email}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest hidden md:block">{featuredGuide.ref}</span>
+                <button 
+                  onClick={onReadFullGuide}
+                  className="bg-brand-navy text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-blue transition-all shadow-lg active:scale-95"
+                >
+                  Read Full Guide
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -2263,8 +2508,8 @@ function ExploreView({ onNavigate, initialProId, onModalClose }: { onNavigate: (
     ? [] 
     : categoryGroups[selectedGroup]?.categories || [];
 
-  const languages = ['All', 'Spanish', 'English', 'French', 'German', 'Italian'];
-  const distances = ['All', 0.5, 1, 2, 5, 10];
+  const languages = ['All', 'Spanish', 'English', 'French', 'German', 'Italian', 'Portuguese', 'Dutch', 'Russian', 'Arabic', 'Chinese', 'Japanese'];
+  const distances = ['All', 1, 2, 5, 10, 25, 50, 100];
 
   const hasActiveFilter = deferredSearch.trim() !== '' || selectedGroup !== 'All' || selectedCategory !== 'All' || selectedLanguage !== 'All' || maxDistance !== 'All';
 
@@ -2294,45 +2539,24 @@ function ExploreView({ onNavigate, initialProId, onModalClose }: { onNavigate: (
       exit={{ opacity: 0, y: -10 }}
       className="p-4 md:p-8 space-y-12 pb-32 max-w-7xl mx-auto"
     >
-      {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-[40px] bg-slate-900 px-6 py-16 md:px-16 md:py-24 text-white shadow-2xl">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-brand-blue/20 blur-[120px] rounded-full -mr-48 -mt-48" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/10 blur-[120px] rounded-full -ml-48 -mb-48" />
-        
-        <div className="relative z-10 max-w-3xl space-y-6">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-5xl md:text-6xl lg:text-7xl font-bold font-display leading-[0.95] tracking-tight"
-          >
-            Find a <span className="text-brand-blue italic">Professional.</span>
-          </motion.h2>
-        </div>
-      </div>
-
       {/* Search & Filters */}
-      <div className="space-y-10">
-        <div className="grid lg:grid-cols-12 gap-8 items-end">
-          <div className="lg:col-span-7 space-y-4">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] px-1">
-              Who are you looking for?
-            </label>
-            <div className="relative group flex items-center gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-400 group-focus-within:text-brand-blue transition-colors" />
-                <input 
-                  type="text" 
-                  placeholder="Search by name, service or expertise..." 
-                  className="w-full pl-14 pr-6 py-5 md:py-6 bg-white rounded-3xl border border-slate-200 focus:ring-8 focus:ring-brand-blue/5 focus:border-brand-blue outline-none shadow-xl shadow-slate-200/20 transition-all text-slate-700 font-semibold text-lg md:text-xl placeholder:text-slate-300"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onFocus={() => setIsInputFocused(true)}
-                  onBlur={() => setTimeout(() => setIsInputFocused(false), 200)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSearchSubmit();
-                  }}
-                />
+      <div className="space-y-8">
+        <div className="max-w-4xl">
+          <div className="relative group flex items-center gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-brand-blue transition-colors" />
+              <input 
+                type="text" 
+                placeholder="Search by name, service or expertise..." 
+                className="w-full pl-12 pr-6 py-4 bg-white rounded-2xl border border-slate-100 focus:ring-4 focus:ring-brand-blue/5 focus:border-brand-blue/20 outline-none shadow-sm hover:shadow-md transition-all text-slate-700 font-medium text-base placeholder:text-slate-300"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onFocus={() => setIsInputFocused(true)}
+                onBlur={() => setTimeout(() => setIsInputFocused(false), 200)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSearchSubmit();
+                }}
+              />
                 
                 {/* Live Search Results Dropdown */}
                 <AnimatePresence>
@@ -2410,137 +2634,145 @@ function ExploreView({ onNavigate, initialProId, onModalClose }: { onNavigate: (
             </div>
           </div>
           
-          <div className="lg:col-span-5 flex items-center justify-end px-2 pb-2">
-            {/* Reset button removed per user request */}
-          </div>
-        </div>
-
-        {/* Category Groups */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between px-1">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
-              Select Category
-            </label>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <button
-              onClick={() => { setSelectedGroup('All'); setSelectedCategory('All'); }}
-              className={cn(
-                "px-6 py-3.5 rounded-[20px] text-sm font-bold transition-all border flex items-center gap-2 active:scale-95 shadow-sm",
-                selectedGroup === 'All' 
-                  ? "bg-slate-900 text-white border-slate-900 shadow-xl shadow-slate-900/20" 
-                  : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
-              )}
-            >
-              All Categories
-            </button>
-            {Object.entries(categoryGroups).map(([name, data]) => (
-              <button
-                key={name}
-                onClick={() => { setSelectedGroup(name); setSelectedCategory('All'); }}
-                className={cn(
-                  "px-6 py-3.5 rounded-[20px] text-sm font-bold transition-all border flex items-center gap-2 active:scale-95 shadow-sm",
-                  selectedGroup === name 
-                    ? "bg-brand-blue text-white border-brand-blue shadow-xl shadow-brand-blue/20" 
-                    : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
-                )}
+            {/* Category Selection */}
+        <div className="space-y-6">
+          <AnimatePresence mode="wait">
+            {selectedGroup === 'All' ? (
+              <motion.div 
+                key="main-categories"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="flex flex-wrap gap-2"
               >
-                {data.icon}
-                {name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Sub-categories (revealed on group selection) */}
-        <AnimatePresence mode="wait">
-          {selectedGroup !== 'All' && (
-            <motion.div 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="space-y-4 overflow-hidden"
-            >
-              <div className="flex items-center gap-2 px-1">
-                <div className="w-1 h-4 bg-brand-blue rounded-full" />
-                <label className="text-[10px] font-bold text-brand-blue uppercase tracking-[0.2em]">
-                  Specific Expertise
-                </label>
-              </div>
-              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 no-swipe">
                 <button
-                  onClick={() => setSelectedCategory('All')}
+                  onClick={() => { setSelectedGroup('All'); setSelectedCategory('All'); }}
                   className={cn(
-                    "px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border uppercase tracking-wider",
-                    selectedCategory === 'All' 
-                      ? "bg-slate-200 text-slate-900 border-slate-300" 
-                      : "bg-slate-50 text-slate-400 border-slate-100"
+                    "px-5 py-2.5 rounded-xl text-xs font-medium uppercase tracking-widest transition-all border flex items-center gap-2 active:scale-95 bg-brand-navy text-white border-brand-navy shadow-lg shadow-brand-navy/10"
                   )}
                 >
-                  All {selectedGroup}
+                  All Experts
                 </button>
-                {currentCategories.map(cat => (
+                {Object.entries(categoryGroups).map(([name, data]) => {
+                  const categoryColors: Record<string, string> = {
+                    'Home Services': 'text-orange-500 border-orange-100 hover:border-orange-200',
+                    'Legal & Admin': 'text-blue-500 border-blue-100 hover:border-blue-200',
+                    'Health & Lifestyle': 'text-emerald-500 border-emerald-100 hover:border-emerald-200'
+                  };
+                  return (
+                    <button
+                      key={name}
+                      onClick={() => { setSelectedGroup(name); setSelectedCategory('All'); }}
+                      className={cn(
+                        "px-5 py-2.5 rounded-xl text-xs font-medium uppercase tracking-widest transition-all border flex items-center gap-2 active:scale-95 bg-white",
+                        categoryColors[name] || 'text-slate-400 border-slate-100 hover:border-slate-200'
+                      )}
+                    >
+                      {data.icon}
+                      {name}
+                    </button>
+                  );
+                })}
+              </motion.div>
+            ) : (
+              <motion.div 
+                key="sub-categories"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-4"
+              >
+                <div className="flex items-center gap-4">
                   <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
+                    onClick={() => { setSelectedGroup('All'); setSelectedCategory('All'); }}
+                    className="p-2 rounded-full hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-900"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{categoryGroups[selectedGroup as keyof typeof categoryGroups]?.icon}</span>
+                    <h3 className="font-bold text-brand-navy uppercase tracking-widest text-sm">{selectedGroup}</h3>
+                  </div>
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setSelectedCategory('All')}
                     className={cn(
-                      "px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border uppercase tracking-wider",
-                      selectedCategory === cat 
-                        ? "bg-brand-blue/10 text-brand-blue border-brand-blue/20" 
-                        : "bg-slate-50 text-slate-400 border-slate-100 hover:border-slate-200"
+                      "px-4 py-2 rounded-xl text-[10px] font-semibold uppercase tracking-widest transition-all border",
+                      selectedCategory === 'All' 
+                        ? "bg-slate-900 text-white border-slate-900 shadow-md" 
+                        : "bg-white text-slate-400 border-slate-100 hover:border-slate-200"
                     )}
                   >
-                    {cat}
+                    All {selectedGroup}
                   </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Distance Filter */}
-        <div className="space-y-4">
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] px-1 flex items-center gap-2">
-            <MapPin className="w-3 h-3" /> Distance from me
-          </label>
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 no-swipe">
-            {distances.map(d => (
-              <button
-                key={d.toString()}
-                onClick={() => setMaxDistance(d as any)}
-                className={cn(
-                  "px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border active:scale-95",
-                  maxDistance === d 
-                    ? "bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/20" 
-                    : "bg-white text-slate-400 border-slate-200 hover:border-slate-300"
-                )}
-              >
-                {d === 'All' ? 'Everywhere' : `${(d as number) < 1 ? (d as number) * 1000 + 'm' : d + 'km'}`}
-              </button>
-            ))}
-          </div>
+                  {currentCategories.map(cat => (
+                    <button
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={cn(
+                        "px-4 py-2 rounded-xl text-[10px] font-semibold uppercase tracking-widest transition-all border",
+                        selectedCategory === cat 
+                          ? "bg-brand-blue text-white border-brand-blue shadow-md" 
+                          : "bg-white text-slate-400 border-slate-100 hover:border-slate-200"
+                      )}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Language Filter */}
-        <div className="space-y-4">
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] px-1">
-            Spoken Languages
-          </label>
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 no-swipe">
-            {languages.map(lang => (
-              <button
-                key={lang}
-                onClick={() => setSelectedLanguage(lang)}
-                className={cn(
-                  "px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border active:scale-95",
-                  selectedLanguage === lang 
-                    ? "bg-slate-900 text-white border-slate-900" 
-                    : "bg-white text-slate-400 border-slate-200 hover:border-slate-300"
-                )}
-              >
-                {lang}
-              </button>
-            ))}
+        {/* Filters Row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-slate-50">
+          {/* Distance */}
+          <div className="space-y-3 min-w-0">
+             <span className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.2em] flex items-center gap-2">
+               <MapPin className="w-3.5 h-3.5" /> Area Search (Radius)
+             </span>
+             <div className="flex gap-2 overflow-x-auto no-scrollbar py-1 mask-fade-right">
+               {distances.map(d => (
+                 <button
+                   key={d.toString()}
+                   onClick={() => setMaxDistance(d as any)}
+                   className={cn(
+                     "px-5 py-2.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap shrink-0 border",
+                     maxDistance === d 
+                       ? "bg-rose-50 text-rose-600 border-rose-100 shadow-sm shadow-rose-500/5 font-bold" 
+                       : "bg-white text-slate-400 border-slate-100 hover:border-slate-200"
+                   )}
+                 >
+                   {d === 'All' ? 'Everywhere' : `${d} km`}
+                 </button>
+               ))}
+             </div>
+          </div>
+
+          {/* Languages */}
+          <div className="space-y-3 min-w-0">
+             <span className="text-[10px] font-bold text-brand-blue uppercase tracking-[0.2em] flex items-center gap-2">
+               <Globe className="w-3.5 h-3.5" /> Preferred Language
+             </span>
+             <div className="flex gap-2 overflow-x-auto no-scrollbar py-1 mask-fade-right">
+               {languages.map(lang => (
+                 <button
+                   key={lang}
+                   onClick={() => setSelectedLanguage(lang)}
+                   className={cn(
+                     "px-5 py-2.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap shrink-0 border",
+                     selectedLanguage === lang 
+                       ? "bg-brand-blue/5 text-brand-blue border-brand-blue/20 shadow-sm shadow-brand-blue/5 font-bold" 
+                       : "bg-white text-slate-400 border-slate-100 hover:border-slate-200"
+                   )}
+                 >
+                   {lang}
+                 </button>
+               ))}
+             </div>
           </div>
         </div>
       </div>
@@ -2559,53 +2791,53 @@ function ExploreView({ onNavigate, initialProId, onModalClose }: { onNavigate: (
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredPros.length > 0 ? (
             filteredPros.map((pro, index) => (
               <motion.div 
                 key={pro.id} 
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
                 onClick={() => setSelectedPro(pro)}
-                className="group relative bg-white rounded-[40px] p-8 flex flex-col md:flex-row gap-8 border border-slate-100 transition-all shadow-sm hover:shadow-2xl hover:shadow-brand-blue/10 hover:border-brand-blue/20 cursor-pointer overflow-hidden"
+                className="group relative bg-white rounded-[32px] p-6 flex flex-col sm:flex-row gap-6 border border-slate-100 transition-all shadow-sm hover:shadow-xl hover:shadow-slate-200/50 hover:border-brand-blue/10 cursor-pointer overflow-hidden"
               >
-                <div className="absolute top-0 right-0 w-40 h-40 bg-slate-50 rounded-full -mr-20 -mt-20 group-hover:bg-brand-blue/5 transition-colors duration-500" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50/50 rounded-full -mr-16 -mt-16 group-hover:bg-brand-blue/5 transition-colors duration-500" />
                 
-                <div className="relative w-28 h-28 md:w-36 md:h-36 rounded-[32px] bg-slate-100 overflow-hidden flex-shrink-0 border-4 border-white shadow-xl group-hover:scale-105 transition-transform duration-700">
+                <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-slate-50 overflow-hidden flex-shrink-0 border border-slate-100 shadow-sm group-hover:scale-105 transition-transform duration-700">
                   <img src={pro.image} alt={pro.name} className="w-full h-full object-cover" />
                 </div>
-
+ 
                 <div className="relative flex-1 flex flex-col justify-between min-w-0 py-1">
-                  <div className="space-y-3">
-                    <div className="space-y-1">
+                  <div className="space-y-2">
+                    <div className="space-y-0.5">
+                      <h4 className="font-bold text-slate-900 text-xl truncate group-hover:text-brand-blue transition-colors tracking-tight">{pro.name}</h4>
                       <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-slate-900 text-2xl truncate group-hover:text-brand-blue transition-colors tracking-tight">{pro.name}</h4>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-black px-2.5 py-1 bg-brand-blue/10 text-brand-blue rounded-lg uppercase tracking-[0.1em]">{pro.category}</span>
+                        <span className="text-[11px] font-medium text-brand-blue uppercase tracking-widest">{pro.category}</span>
+                        <span className="text-slate-200">•</span>
                         <div className="flex items-center gap-1">
-                          <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-                          <span className="text-xs font-black text-slate-700">{pro.rating}</span>
-                          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">({pro.reviews})</span>
+                          <Star className="w-3 h-3 text-brand-yellow fill-brand-yellow" />
+                          <span className="text-xs font-normal text-slate-700">{pro.rating}</span>
+                          <span className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">({pro.reviews})</span>
                         </div>
                       </div>
                     </div>
-                    <p className="text-sm text-slate-400 line-clamp-2 leading-relaxed font-semibold">
+                    <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed font-medium">
                       {pro.bio}
                     </p>
                   </div>
-
-                  <div className="flex items-center justify-between mt-8 pt-4 border-t border-slate-50">
+ 
+                  <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-50">
                     <div className="flex flex-wrap gap-2">
-                      {pro.languages.slice(0, 3).map(lang => (
-                        <span key={lang} className="px-3 py-1.5 bg-slate-50 text-slate-500 rounded-xl text-[10px] font-bold border border-slate-100">
+                      {pro.languages.slice(0, 2).map(lang => (
+                        <span key={lang} className="px-2 py-1 bg-slate-50/80 text-slate-400 rounded-lg text-[10px] font-medium border border-slate-100">
                           {lang}
                         </span>
                       ))}
                     </div>
-                    <div className="p-3 bg-brand-blue/5 rounded-2xl group-hover:bg-brand-blue group-hover:text-white transition-all text-brand-blue">
-                      <ChevronRight className="w-5 h-5" />
+                    <div className="flex items-center gap-1.5 text-[10px] font-medium text-slate-300 uppercase tracking-widest">
+                       <MapPin className="w-3 h-3" />
+                       {pro.location}
                     </div>
                   </div>
                 </div>
@@ -2622,7 +2854,7 @@ function ExploreView({ onNavigate, initialProId, onModalClose }: { onNavigate: (
               </div>
               <button 
                 onClick={() => { setSearch(''); setSelectedGroup('All'); setSelectedCategory('All'); setSelectedLanguage('All'); }}
-                className="mt-4 px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm shadow-2xl shadow-slate-900/20 hover:scale-105 transition-all active:scale-95"
+                className="mt-4 px-8 py-4 bg-brand-blue text-white rounded-2xl font-bold text-sm shadow-xl shadow-brand-blue/20 hover:scale-105 transition-all active:scale-95"
               >
                 Clear all filters
               </button>
@@ -2799,14 +3031,14 @@ function ProfessionalDetailView({ pro, onClose, onNavigate }: { pro: Professiona
                 <h3 className="text-3xl md:text-4xl font-black text-slate-900 font-display tracking-tight leading-none">{pro.name}</h3>
               </div>
               <div className="flex flex-wrap items-center gap-3 text-sm">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-blue/5 text-brand-blue rounded-xl font-bold border border-brand-blue/10">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-blue/5 text-brand-blue rounded-xl font-medium border border-brand-blue/10">
                   <Briefcase className="w-3.5 h-3.5" />
                   {pro.category}
                 </div>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 text-slate-600 rounded-xl font-bold border border-slate-100">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 text-slate-600 rounded-xl font-medium border border-slate-100">
                   <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                   <span>{pro.rating}</span>
-                  <span className="text-slate-400 font-medium">({pro.reviews} reviews)</span>
+                  <span className="text-slate-400 font-normal">({pro.reviews} reviews)</span>
                 </div>
               </div>
             </div>
@@ -2817,7 +3049,7 @@ function ProfessionalDetailView({ pro, onClose, onNavigate }: { pro: Professiona
               <section className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 rounded-full bg-brand-blue" />
-                  <h4 className="text-lg font-bold text-slate-900 font-display uppercase tracking-wider">Expert Bio</h4>
+                  <h4 className="text-lg font-semibold text-slate-900 font-display uppercase tracking-wider">Expert Bio</h4>
                 </div>
                 <p className="text-slate-600 leading-relaxed text-base font-medium">
                   {pro.bio}
@@ -2828,7 +3060,7 @@ function ProfessionalDetailView({ pro, onClose, onNavigate }: { pro: Professiona
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-brand-blue" />
-                    <h4 className="text-lg font-bold text-slate-900 font-display uppercase tracking-wider">Community feedback</h4>
+                    <h4 className="text-lg font-semibold text-slate-900 font-display uppercase tracking-wider">Community feedback</h4>
                   </div>
                 </div>
                 <div className="grid gap-4">
@@ -2877,26 +3109,26 @@ function ProfessionalDetailView({ pro, onClose, onNavigate }: { pro: Professiona
               <div className="p-8 bg-slate-900 rounded-[32px] text-white space-y-8 shadow-2xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-blue/20 blur-3xl -mr-16 -mt-16 group-hover:bg-brand-blue/30 transition-colors" />
                 
-                <h4 className="font-bold text-sm uppercase tracking-[0.2em] text-slate-400 relative z-10">Direct Contact</h4>
+                <h4 className="font-semibold text-sm uppercase tracking-[0.2em] text-slate-400 relative z-10">Direct Contact</h4>
                 
                 <div className="space-y-6 relative z-10">
                   {pro.phone && (
                     <div className="space-y-1">
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Phone</p>
+                      <p className="text-[10px] font-medium text-cyan-400 uppercase tracking-widest">Phone</p>
                       <a href={`tel:${pro.phone}`} className="font-bold text-lg hover:text-brand-blue cursor-pointer transition-colors break-all block">{pro.phone}</a>
                     </div>
                   )}
                   {pro.email && (
                     <div className="space-y-1">
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Email</p>
+                      <p className="text-[10px] font-medium text-indigo-400 uppercase tracking-widest">Email</p>
                       <a href={`mailto:${pro.email}`} className="font-bold text-sm hover:text-brand-blue cursor-pointer transition-colors break-all block">{pro.email}</a>
                     </div>
                   )}
                   <div className="space-y-2">
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Languages</p>
+                    <p className="text-[10px] font-medium text-brand-blue uppercase tracking-widest">Languages</p>
                     <div className="flex flex-wrap gap-2">
                       {pro.languages.map(lang => (
-                        <span key={lang} className="px-2.5 py-1 bg-white/10 rounded-lg text-[10px] font-bold border border-white/10 backdrop-blur-sm">
+                        <span key={lang} className="px-2.5 py-1 bg-white/10 rounded-lg text-[10px] font-medium border border-white/10 backdrop-blur-sm">
                           {lang}
                         </span>
                       ))}
@@ -2913,7 +3145,7 @@ function ProfessionalDetailView({ pro, onClose, onNavigate }: { pro: Professiona
                     <MapPin className="w-6 h-6 text-rose-500" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Location</p>
+                    <p className="text-[10px] font-medium text-rose-500 uppercase tracking-widest">Location</p>
                     <p className="font-bold text-slate-900">{pro.location}</p>
                   </div>
                 </div>
@@ -3238,6 +3470,8 @@ function MarketplaceView({ onAddAd, ads, onSelectAd }: { onAddAd: () => void, ad
   const [showResults, setShowResults] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
 
+  const [showFilters, setShowFilters] = useState(false);
+
   const handleSearch = () => {
     setShowResults(true);
     // Scroll to results
@@ -3306,235 +3540,142 @@ function MarketplaceView({ onAddAd, ads, onSelectAd }: { onAddAd: () => void, ad
       className="pb-20"
     >
       {/* Search Hero Section */}
-      <div className="bg-gradient-to-br from-brand-blue/5 via-white to-brand-yellow/5 border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 py-12 md:py-24 space-y-12">
-          
-          <div className="text-center space-y-4">
-            <h2 className="text-4xl md:text-5xl font-bold font-display text-slate-900 tracking-tight">
-              Unlock'd Marketplace
+      <div className="bg-white border-b border-slate-100">
+        <div className="max-w-7xl mx-auto px-6 py-16 md:py-20 space-y-8 text-center">
+          <div className="space-y-3 max-w-2xl mx-auto">
+            <p className="text-[10px] font-black text-brand-blue uppercase tracking-[0.4em]">Community Marketplace</p>
+            <h2 className="text-3xl md:text-5xl font-black font-display text-brand-navy tracking-tight leading-tight">
+              Unlock'd <span className="text-brand-blue italic font-medium">Market.</span>
             </h2>
-            <p className="text-slate-500 text-lg max-w-2xl mx-auto">
-              Find everything you need from the local community.
-            </p>
           </div>
 
-          <div className="max-w-5xl mx-auto bg-white p-2 rounded-[32px] shadow-2xl shadow-brand-blue/10 border border-slate-100 flex flex-col md:flex-row items-center gap-2">
-            <div className="relative flex-1 w-full">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <div className="max-w-3xl mx-auto flex flex-col md:flex-row items-center gap-3">
+            <div className="flex-1 w-full relative">
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
               <input 
                 type="text"
                 placeholder="What are you looking for?"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="w-full pl-14 pr-4 py-5 bg-transparent rounded-2xl outline-none text-lg font-medium"
+                className="w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-2xl outline-none text-sm font-medium placeholder:text-slate-300 shadow-sm focus:ring-4 focus:ring-brand-blue/5 focus:border-brand-blue/20 transition-all"
               />
-            </div>
-            <div className="h-10 w-px bg-slate-100 hidden md:block" />
-            <div className="relative flex-1 w-full">
-              <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input 
-                type="text"
-                placeholder="Where? (e.g. Ruzafa)"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="w-full pl-14 pr-4 py-5 bg-transparent rounded-2xl outline-none text-lg font-medium"
-              />
-            </div>
-            <div className="h-10 w-px bg-slate-100 hidden md:block" />
-            <div className="relative flex-1 w-full">
-              <LayoutGrid className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <select 
-                value={activeCategory}
-                onChange={(e) => setActiveCategory(e.target.value)}
-                className="w-full pl-14 pr-8 py-5 bg-transparent rounded-2xl outline-none text-lg font-medium appearance-none cursor-pointer"
-              >
-                {categories.map(cat => (
-                  <option key={cat.name} value={cat.name}>{cat.name}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
             </div>
             <button 
               onClick={handleSearch}
-              className="w-full md:w-auto bg-brand-blue text-white px-10 py-5 rounded-[24px] font-bold text-lg hover:bg-brand-blue/90 transition-all active:scale-95 shadow-lg shadow-brand-blue/20"
+              className="w-full md:w-auto bg-brand-navy text-white px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-blue transition-all active:scale-95 shadow-xl shadow-brand-navy/10"
             >
               Search
             </button>
           </div>
-
-          {/* Conditional Filters */}
-          <AnimatePresence>
-            {activeCategory !== 'All' && (
-              <motion.div 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="max-w-5xl mx-auto bg-white/50 backdrop-blur-sm p-8 rounded-[32px] border border-slate-100 shadow-sm space-y-8"
-              >
-                <div className="flex flex-col md:flex-row gap-8">
-                  {/* Price Range */}
-                  <div className="flex-1 space-y-4">
-                    <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                      <Euro className="w-4 h-4 text-brand-blue" />
-                      Price Range
-                    </label>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">€</span>
-                        <input 
-                          type="number" 
-                          placeholder="Min"
-                          value={priceRange[0]}
-                          onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
-                          className="w-full pl-8 pr-4 py-3 bg-white border border-slate-100 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all"
-                        />
-                      </div>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">€</span>
-                        <input 
-                          type="number" 
-                          placeholder="Max"
-                          value={priceRange[1]}
-                          onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 0])}
-                          className="w-full pl-8 pr-4 py-3 bg-white border border-slate-100 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Condition - Hide for Jobs and Services */}
-                  {activeCategory !== 'Jobs' && activeCategory !== 'Services' && (
-                    <div className="flex-1 space-y-4">
-                      <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <SlidersHorizontal className="w-4 h-4 text-brand-blue" />
-                        Condition
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {conditions.map(c => (
-                          <button
-                            key={c}
-                            onClick={() => setSelectedCondition(c)}
-                            className={cn(
-                              "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
-                              selectedCondition === c 
-                                ? "bg-brand-blue text-white border-brand-blue shadow-lg shadow-brand-blue/20" 
-                                : "bg-white text-slate-600 border-slate-100 hover:border-brand-blue/30"
-                            )}
-                          >
-                            {c}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Category Specific Filters */}
-                  {activeCategory === 'Vehicles' && (
-                    <div className="flex-1 space-y-4">
-                      <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <Car className="w-4 h-4 text-brand-blue" />
-                        Fuel Type
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {['All', 'Petrol', 'Diesel', 'Electric', 'Hybrid'].map(f => (
-                          <button
-                            key={f}
-                            onClick={() => setExtraFilters({ ...extraFilters, fuel: f })}
-                            className={cn(
-                              "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
-                              extraFilters.fuel === f || (!extraFilters.fuel && f === 'All')
-                                ? "bg-brand-blue text-white border-brand-blue shadow-lg shadow-brand-blue/20" 
-                                : "bg-white text-slate-600 border-slate-100 hover:border-brand-blue/30"
-                            )}
-                          >
-                            {f}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {activeCategory === 'Real Estate' && (
-                    <div className="flex-1 space-y-4">
-                      <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <Building2 className="w-4 h-4 text-brand-blue" />
-                        Property Type
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {['All', 'Apartment', 'House', 'Studio', 'Office'].map(t => (
-                          <button
-                            key={t}
-                            onClick={() => setExtraFilters({ ...extraFilters, propertyType: t })}
-                            className={cn(
-                              "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
-                              extraFilters.propertyType === t || (!extraFilters.propertyType && t === 'All')
-                                ? "bg-brand-blue text-white border-brand-blue shadow-lg shadow-brand-blue/20" 
-                                : "bg-white text-slate-600 border-slate-100 hover:border-brand-blue/30"
-                            )}
-                          >
-                            {t}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {activeCategory === 'Jobs' && (
-                    <div className="flex-1 space-y-4">
-                      <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <Briefcase className="w-4 h-4 text-brand-blue" />
-                        Contract Type
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {['All', 'Full-time', 'Part-time', 'Contract', 'Internship'].map(c => (
-                          <button
-                            key={c}
-                            onClick={() => setExtraFilters({ ...extraFilters, contract: c })}
-                            className={cn(
-                              "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
-                              extraFilters.contract === c || (!extraFilters.contract && c === 'All')
-                                ? "bg-brand-blue text-white border-brand-blue shadow-lg shadow-brand-blue/20" 
-                                : "bg-white text-slate-600 border-slate-100 hover:border-brand-blue/30"
-                            )}
-                          >
-                            {c}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {activeCategory === 'Clothing' && (
-                    <div className="flex-1 space-y-4">
-                      <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <Shirt className="w-4 h-4 text-brand-blue" />
-                        Size
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {['All', 'XS', 'S', 'M', 'L', 'XL', 'XXL'].map(s => (
-                          <button
-                            key={s}
-                            onClick={() => setExtraFilters({ ...extraFilters, size: s })}
-                            className={cn(
-                              "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
-                              extraFilters.size === s || (!extraFilters.size && s === 'All')
-                                ? "bg-brand-blue text-white border-brand-blue shadow-lg shadow-brand-blue/20" 
-                                : "bg-white text-slate-600 border-slate-100 hover:border-brand-blue/30"
-                            )}
-                          >
-                            {s}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
+      </div>
+
+      {/* Categories Bar */}
+      <div className="max-w-7xl mx-auto px-6 py-6 border-b border-slate-50">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 md:pb-0">
+            {categories.map(cat => {
+              const Icon = cat.icon;
+              return (
+                <button
+                  key={cat.name}
+                  onClick={() => setActiveCategory(cat.name)}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-widest transition-all border whitespace-nowrap",
+                    activeCategory === cat.name 
+                      ? "bg-brand-blue text-white border-brand-blue shadow-lg shadow-brand-blue/10" 
+                      : "bg-white text-slate-400 border-slate-100 hover:border-slate-200"
+                  )}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {cat.name}
+                </button>
+              );
+            })}
+          </div>
+          <button 
+            onClick={() => setShowFilters(!showFilters)}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-widest transition-all border",
+              showFilters ? "bg-slate-100 text-slate-900 border-slate-200" : "bg-white text-slate-400 border-slate-100 hover:border-slate-200"
+            )}
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            Filters
+          </button>
+        </div>
+
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="pt-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Price Range */}
+                <div className="space-y-3">
+                  <label className="text-xs font-semibold text-emerald-600 uppercase tracking-widest">Price Range</label>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="number" 
+                      placeholder="Min"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-medium outline-none"
+                      value={priceRange[0]}
+                      onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
+                    />
+                    <span className="text-slate-300">—</span>
+                    <input 
+                      type="number" 
+                      placeholder="Max"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-medium outline-none"
+                      value={priceRange[1]}
+                      onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 0])}
+                    />
+                  </div>
+                </div>
+
+                {/* Condition */}
+                <div className="space-y-3">
+                  <label className="text-xs font-semibold text-amber-600 uppercase tracking-widest">Condition</label>
+                  <div className="flex flex-wrap gap-2">
+                    {conditions.map(c => (
+                      <button
+                        key={c}
+                        onClick={() => setSelectedCondition(c)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider border transition-all",
+                          selectedCondition === c 
+                            ? "bg-slate-900 text-white border-slate-900" 
+                            : "bg-white text-slate-400 border-slate-100"
+                        )}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Location Filter for small screens/convenience */}
+                <div className="space-y-3">
+                  <label className="text-xs font-semibold text-rose-600 uppercase tracking-widest">Location</label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-300" />
+                    <input 
+                      type="text" 
+                      placeholder="Filter by area..."
+                      className="w-full pl-8 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-medium outline-none"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <div id="search-results-anchor" />
@@ -3581,72 +3722,45 @@ function MarketplaceView({ onAddAd, ads, onSelectAd }: { onAddAd: () => void, ad
                   <motion.div 
                     key={ad.id}
                     layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="card bg-white overflow-hidden group cursor-pointer border border-slate-100 hover-lift"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="group cursor-pointer flex flex-col h-full active:scale-[0.98] transition-transform"
                     onClick={() => onSelectAd(ad)}
                   >
-                    <div className="aspect-[4/3] relative overflow-hidden">
+                    <div className="aspect-[5/6] relative overflow-hidden rounded-[24px] border border-slate-100 overflow-hidden">
                       <img 
                         src={ad.image_url} 
                         alt={ad.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         referrerPolicy="no-referrer"
                       />
-                      <div className="absolute top-3 left-3 flex gap-2">
-                        <span className="px-2 py-1 rounded-lg bg-white/90 backdrop-blur-sm text-[10px] font-bold text-slate-900 shadow-sm uppercase tracking-wider">
+                      <div className="absolute top-4 left-4 flex flex-col gap-2">
+                        <span className="px-2 py-1 rounded-lg bg-white/90 backdrop-blur-md text-[10px] font-bold text-brand-navy shadow-sm uppercase tracking-widest">
                           {ad.category}
                         </span>
-                        {ad.condition && ad.condition !== 'All' && (
-                          <span className="px-2 py-1 rounded-lg bg-brand-blue text-white text-[10px] font-bold shadow-sm uppercase tracking-wider">
-                            {ad.condition}
-                          </span>
-                        )}
                       </div>
-                      <button className="absolute top-3 right-3 p-2 rounded-full bg-white/90 backdrop-blur-sm text-slate-400 hover:text-pink-500 transition-colors shadow-sm">
-                        <Heart className="w-4 h-4" />
-                      </button>
+                      
+                      <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                         <div className="w-full py-2 bg-white/90 backdrop-blur-sm rounded-xl text-center text-xs font-bold uppercase tracking-widest text-brand-navy shadow-lg">
+                            Quick View
+                         </div>
+                      </div>
                     </div>
-                    <div className="p-4 space-y-3">
-                      <div className="flex justify-between items-start gap-2">
-                        <h4 className="font-bold text-slate-900 line-clamp-1 group-hover:text-brand-blue transition-colors">{ad.title}</h4>
-                        <span className="text-lg font-black text-brand-blue whitespace-nowrap">{ad.price}</span>
+                    
+                    <div className="mt-4 px-2 space-y-1.5 flex-grow">
+                      <div className="flex justify-between items-start gap-4">
+                        <h4 className="font-bold text-slate-800 text-sm leading-tight group-hover:text-brand-blue transition-colors line-clamp-2">{ad.title}</h4>
+                        <span className="text-sm font-black text-brand-blue">{ad.price}</span>
                       </div>
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        {ad.type && (
-                          <span className="px-2 py-0.5 rounded-md bg-brand-blue/10 text-[10px] font-bold text-brand-blue border border-brand-blue/20">
-                            For {ad.type}
-                          </span>
-                        )}
-                        {ad.fuel_type && (
-                          <span className="px-2 py-0.5 rounded-md bg-slate-50 text-[10px] font-bold text-slate-500 border border-slate-100">
-                            {ad.fuel_type}
-                          </span>
-                        )}
-                        {ad.property_type && (
-                          <span className="px-2 py-0.5 rounded-md bg-slate-50 text-[10px] font-bold text-slate-500 border border-slate-100">
-                            {ad.property_type}
-                          </span>
-                        )}
-                        {ad.contract_type && (
-                          <span className="px-2 py-0.5 rounded-md bg-slate-50 text-[10px] font-bold text-slate-500 border border-slate-100">
-                            {ad.contract_type}
-                          </span>
-                        )}
-                        {ad.size && (
-                          <span className="px-2 py-0.5 rounded-md bg-slate-50 text-[10px] font-bold text-slate-500 border border-slate-100">
-                            Size: {ad.size}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {ad.location}
+                      
+                      <div className="flex items-center gap-3 pt-1">
+                        <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-400 uppercase tracking-tight">
+                           <MapPin className="w-3 h-3 text-brand-yellow" />
+                           {ad.location}
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {new Date(ad.created_at).toLocaleDateString()}
+                        <span className="text-slate-200">•</span>
+                        <div className="text-[11px] font-semibold text-slate-300 uppercase tracking-tight">
+                           {formatRelativeTime(ad.created_at)}
                         </div>
                       </div>
                     </div>
@@ -3681,17 +3795,18 @@ function MarketplaceView({ onAddAd, ads, onSelectAd }: { onAddAd: () => void, ad
         )}
       </AnimatePresence>
 
-      <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-8">
-        <div className="w-24 h-24 bg-brand-blue/5 rounded-full flex items-center justify-center mx-auto">
-          <Plus className="w-10 h-10 text-brand-blue" />
+      <div className="max-w-7xl mx-auto px-4 py-24 text-center space-y-10 border-t border-slate-50 mt-12">
+        <div className="w-20 h-20 bg-brand-blue/5 rounded-full flex items-center justify-center mx-auto ring-1 ring-brand-blue/10">
+          <Plus className="w-8 h-8 text-brand-blue" />
         </div>
-        <div className="space-y-2">
-          <h3 className="text-3xl font-bold text-slate-900 font-display">Have something to sell?</h3>
-          <p className="text-slate-500 max-w-sm mx-auto">Join the community and post your listing in seconds.</p>
+        <div className="space-y-3">
+          <p className="text-[10px] font-black text-brand-blue uppercase tracking-[0.4em]">Community Marketplace</p>
+          <h3 className="text-3xl md:text-4xl font-black text-brand-navy font-display tracking-tight leading-tight max-w-sm mx-auto">Have something <br/>to offer?</h3>
+          <p className="text-slate-500 text-sm md:text-base max-w-sm mx-auto font-medium">Join the community and post your listing in seconds reachings thousands of locals.</p>
         </div>
         <button 
           onClick={onAddAd}
-          className="bg-slate-900 text-white px-12 py-5 rounded-[24px] font-bold text-lg hover:bg-slate-800 transition-all active:scale-95 shadow-xl"
+          className="bg-brand-navy text-white px-12 py-5 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] hover:bg-brand-blue transition-all active:scale-95 shadow-2xl shadow-brand-navy/10"
         >
           Post a Listing
         </button>
@@ -4073,7 +4188,7 @@ function SplashScreen() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.4 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
           className="flex flex-col items-center"
         >
           <p className="text-xs md:text-sm font-medium text-slate-500 whitespace-nowrap px-4 text-center">
